@@ -1,0 +1,231 @@
+# All diagnostic thresholds live here, not in code.
+#
+# `signals` are the atomic, single-metric threshold checks. Each one is owned
+# by exactly one analysis agent (which emits a grounded, obs_id-citing Finding
+# when it fires) and tags which hypotheses it supports or contradicts, and by
+# how much. The correlation agent re-evaluates every signal directly against
+# the raw EvidenceStore (not the agents' own claims) and sums weights per
+# hypothesis; it cites the matching agent Finding's finding_id as evidence,
+# so a hypothesis-level claim grounds as "inferred", never "observed".
+#
+# `subsystem` groups signals by the physical thing they measure, used only by
+# the hardware_failure co-occurrence rule below.
+
+signals:
+  - id: high_link_utilization
+    metric: link_utilization
+    op: ">"
+    threshold: 85
+    agent: performance_agent
+    subsystem: link
+    interpretation: "Link utilization is elevated"
+    hypotheses:
+      link_congestion: {role: supports, weight: 3}
+
+  - id: low_link_utilization
+    metric: link_utilization
+    op: "<"
+    threshold: 50
+    agent: performance_agent
+    subsystem: link
+    interpretation: "Link utilization is within normal range"
+    hypotheses:
+      link_congestion: {role: contradicts, weight: 2}
+
+  - id: saturated_link
+    metric: link_utilization
+    op: ">"
+    threshold: 95
+    agent: performance_agent
+    subsystem: link
+    interpretation: "Link utilization is saturated"
+    hypotheses:
+      hardware_failure: {role: supports, weight: 1}
+
+  - id: high_latency
+    metric: latency
+    op: ">"
+    threshold: 150
+    agent: performance_agent
+    subsystem: latency
+    interpretation: "Latency is elevated"
+    hypotheses:
+      link_congestion: {role: supports, weight: 2}
+      cpu_overload: {role: supports, weight: 1}
+
+  - id: elevated_packet_loss
+    metric: packet_loss
+    op: ">"
+    threshold: 5
+    agent: performance_agent
+    subsystem: loss
+    interpretation: "Packet loss is elevated"
+    hypotheses:
+      interface_fault: {role: supports, weight: 2}
+      link_congestion: {role: supports, weight: 1}
+
+  - id: elevated_queue_drops
+    metric: queue_drops
+    op: ">"
+    threshold: 100
+    agent: infrastructure_agent
+    subsystem: queue
+    interpretation: "Queue drops are elevated"
+    hypotheses:
+      link_congestion: {role: supports, weight: 2}
+      hardware_failure: {role: supports, weight: 2}
+
+  - id: massive_queue_drops
+    metric: queue_drops
+    op: ">"
+    threshold: 1000
+    agent: infrastructure_agent
+    subsystem: queue
+    interpretation: "Queue drops are extremely elevated"
+    hypotheses:
+      hardware_failure: {role: supports, weight: 2}
+
+  - id: interface_errors_present
+    metric: interface_errors
+    op: ">"
+    threshold: 0
+    agent: infrastructure_agent
+    subsystem: interface
+    interpretation: "Interface errors detected"
+    hypotheses:
+      interface_fault: {role: supports, weight: 3}
+      hardware_failure: {role: supports, weight: 2}
+
+  - id: no_interface_errors
+    metric: interface_errors
+    op: "=="
+    threshold: 0
+    agent: infrastructure_agent
+    subsystem: interface
+    interpretation: "No interface errors reported"
+    hypotheses:
+      interface_fault: {role: contradicts, weight: 2}
+
+  - id: high_cpu
+    metric: cpu
+    op: ">"
+    threshold: 90
+    agent: infrastructure_agent
+    subsystem: cpu
+    interpretation: "CPU utilization is critically high"
+    hypotheses:
+      cpu_overload: {role: supports, weight: 3}
+      hardware_failure: {role: supports, weight: 1}
+
+  - id: normal_cpu
+    metric: cpu
+    op: "<"
+    threshold: 70
+    agent: infrastructure_agent
+    subsystem: cpu
+    interpretation: "CPU utilization is within normal range"
+    hypotheses:
+      cpu_overload: {role: contradicts, weight: 2}
+
+  - id: device_down
+    metric: device_status
+    op: "=="
+    threshold: "Critical"
+    agent: infrastructure_agent
+    subsystem: status
+    interpretation: "Device reports Critical status"
+    hypotheses:
+      hardware_failure: {role: supports, weight: 1}
+
+  - id: weak_rssi
+    metric: rssi
+    op: "<"
+    threshold: -70
+    agent: infrastructure_agent
+    subsystem: wifi
+    interpretation: "Wireless signal strength is weak"
+    hypotheses:
+      weak_wifi: {role: supports, weight: 3}
+
+  - id: elevated_retransmissions
+    metric: retransmissions
+    op: ">"
+    threshold: 10
+    agent: infrastructure_agent
+    subsystem: wifi
+    interpretation: "Retransmission rate is elevated"
+    hypotheses:
+      weak_wifi: {role: supports, weight: 2}
+
+  - id: dns_failures_present
+    metric: dns_failure
+    op: ">"
+    threshold: 5
+    agent: infrastructure_agent
+    subsystem: service
+    interpretation: "DNS failure rate is elevated"
+    hypotheses:
+      dns_dhcp_failure: {role: supports, weight: 2}
+
+  - id: dhcp_failures_present
+    metric: dhcp_failures
+    op: ">"
+    threshold: 0
+    agent: infrastructure_agent
+    subsystem: service
+    interpretation: "DHCP failures detected"
+    hypotheses:
+      dns_dhcp_failure: {role: supports, weight: 2}
+
+hypotheses:
+  link_congestion:
+    label: "Link congestion"
+    required_metrics: [link_utilization, queue_drops, latency]
+    recommended_actions:
+      - "Inspect upstream and egress link utilization"
+      - "Review queue configuration and traffic distribution"
+  interface_fault:
+    label: "Interface or cabling fault on a single link"
+    required_metrics: [interface_errors, packet_loss]
+    recommended_actions:
+      - "Check interface error counters and cabling"
+      - "Consider replacing the suspect NIC or port"
+  cpu_overload:
+    label: "Device CPU overload"
+    required_metrics: [cpu, latency]
+    recommended_actions:
+      - "Investigate high-CPU processes on the device"
+      - "Consider load balancing or a hardware upgrade"
+  hardware_failure:
+    label: "Hardware failure"
+    required_metrics: [interface_errors, cpu, link_utilization, queue_drops]
+    # Several independent subsystems saturated simultaneously + interface
+    # errors outranks single-subsystem explanations for the same incident.
+    co_occurrence_min: 3
+    co_occurrence_demote: [link_congestion, cpu_overload, interface_fault]
+    co_occurrence_demote_factor: 0.5
+    recommended_actions:
+      - "Dispatch a technician to inspect the hardware"
+      - "Fail traffic over to a redundant device if available"
+  weak_wifi:
+    label: "Weak wireless signal"
+    required_metrics: [rssi, retransmissions]
+    recommended_actions:
+      - "Relocate or add wireless access points"
+      - "Check for sources of RF interference"
+  dns_dhcp_failure:
+    label: "DNS or DHCP service failure"
+    required_metrics: [dns_failure, dhcp_failures]
+    recommended_actions:
+      - "Restart or fail over the DNS/DHCP service"
+      - "Check service logs for errors"
+  healthy:
+    label: "No fault detected"
+    required_metrics: [cpu, link_utilization, latency, packet_loss]
+    recommended_actions:
+      - "No action needed; continue routine monitoring"
+
+confidence:
+  high: {score: 0.75, margin: 0.2}
+  medium: {score: 0.5, margin: 0.1}
+  insufficient_evidence: {coverage: 0.5, score: 0.3, margin: 0.1}
