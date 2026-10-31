@@ -27,7 +27,7 @@ cd netcoop-ai
 python -m venv .venv
 .venv\Scripts\activate          # .venv/bin/activate on macOS/Linux
 pip install -r requirements.txt
-pytest -q                       # 106 tests
+pytest -q                       # 156 tests
 ```
 
 (All further commands in this README assume you're still inside `netcoop-ai/`.)
@@ -40,22 +40,50 @@ python -m netcoop run scenarios/inputs/upstream_failure.json --topology scenario
 python -m netcoop run scenarios/inputs/stale.json --topology scenarios/topology.json --checks scenarios/checks/stale
 ```
 
-Each run prints the full inter-agent message flow, prints the final report,
-and writes `reports/<incident_id>.json` / `.md`. Every `Envelope` exchanged
-during the run is appended to `logs/<incident_id>.jsonl` for replay/audit.
+Each run renders a colored inter-agent message timeline, a hypotheses table
+(score/coverage/support/contradictions), checks performed, and the final
+report (via [rich](https://github.com/Textualize/rich)), then writes
+`reports/<incident_id>.json` / `.md`. Every `Envelope` exchanged during the
+run is appended to `logs/<incident_id>.jsonl` for replay/audit.
 
-To see every bundled scenario scored against its documented expected outcome,
-alongside a naive baseline that diagnoses purely from the device's
-self-reported `status` field (no correlation, no evidence weighting — exactly
-the shortcut the real pipeline refuses to take):
+### Live demo
+
+```bash
+python -m netcoop demo
+```
+
+Walks through five scenarios end to end, pausing for Enter between each:
+one generator `hardware_failure` record, `ambiguous_loss` resolved two
+different ways by two check variants (A → link congestion, B → interface
+fault), the same hardware_failure incident re-expressed in Schema B, and a
+broken input file (one bad field rejected, diagnosis still runs).
+
+### Incident viewer (Streamlit)
+
+```bash
+streamlit run app.py
+```
+
+Browses already-completed incidents straight from `reports/*.json` and
+`logs/*.jsonl` — message timeline, hypotheses, checks performed, and a JSON
+download button. It never re-runs anything or simulates progress; run
+`netcoop run`/`netcoop demo` first to produce incidents to view.
+
+### Evaluation
+
+To see every bundled scenario scored against its documented expected
+outcome, alongside a naive single-pass threshold classifier baseline (no
+grounding, no topology, no checks, no abstention):
 
 ```bash
 python eval/run_eval.py
 ```
 
-On the bundled scenarios this currently shows the pipeline at 100%
-status/cause accuracy against the documented ground truth, versus 75%/17%
-for the naive baseline.
+Writes `eval/results/results.json` and `results.md`. On the 13 bundled
+(synthetic) scenarios, the pipeline currently matches ground truth on
+100% of root causes and abstains correctly on all 4 genuinely ambiguous
+scenarios (0 false confident diagnoses); the naive baseline, which can't
+abstain, confidently guesses wrong on all 4.
 
 ## Agents
 
@@ -91,13 +119,15 @@ example of each.
 
 ## Scenarios
 
-`scripts/gen_scenarios.py` is seeded (reproducible) and generates 12 fault
+`scripts/gen_scenarios.py` is seeded (reproducible) and generates 13 fault
 scenarios — `normal`, `congestion`, `interface_fault`, `weak_wifi`,
 `dns_dhcp_failure`, `cpu_overload`, `hardware_failure`, `upstream_failure`
 (shared distribution switch), `simultaneous` (two unrelated faults in
 different segments), `insufficient` (key metrics missing), `stale` (an old
-reading that must be excluded), `contradictory` — each as a 6-sample time
-series, plus 3 Schema B variants and 2 targeted-check fixtures. Regenerate
+reading that must be excluded), `contradictory`, `ambiguous_loss`
+(congestion vs. interface fault, resolved by a targeted check) — each as a
+6-sample time series, plus 3 Schema B variants and targeted-check fixtures
+for `stale`/`insufficient`/`ambiguous_loss` (two variants). Regenerate
 with:
 
 ```bash
@@ -117,12 +147,13 @@ netcoop/
   adapters/        mappings/                    # Schema A/B ingestion
   topology.py       rules.yaml       confidence.py
   agents/           checks.py        orchestrator.py
-  cli.py  __main__.py  report.py     ingest.py
+  cli.py  __main__.py  render.py     report.py   ingest.py
 scenarios/   inputs/  checks/  topology.json  ground_truth.json
 scripts/gen_scenarios.py
 eval/        run_eval.py  baseline.py  results/
-tests/       106 tests across 5 milestones
+tests/       156 tests across 9 milestones
 docs/        PROTOCOL.md  problem_statement.pdf
+app.py                                           # Streamlit incident viewer
 logs/        reports/     (generated; gitignored)
 ```
 
