@@ -3,4 +3,6 @@ __pycache__/
 .pytest_cache/
 logs/*.jsonl
 reports/
-eval/results/
+eval/results/*
+!eval/results/results.json
+!eval/results/results.md

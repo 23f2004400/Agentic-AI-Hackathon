@@ -1,0 +1,479 @@
+{
+  "dataset_size": 13,
+  "dataset_is_synthetic": true,
+  "scenarios": [
+    {
+      "scenario": "normal",
+      "expected_status": "diagnosed",
+      "expected_root_cause": "No fault detected",
+      "expected_devices": [
+        "SW_CAMPUS_1"
+      ],
+      "pipeline": {
+        "status": "diagnosed",
+        "root_cause": "No fault detected",
+        "affected_devices": [
+          "SW_CAMPUS_1"
+        ],
+        "confidence": 1.0,
+        "confidence_category": "high",
+        "status_correct": true,
+        "cause_correct": true,
+        "devices_correct": true,
+        "checks_used": 0,
+        "latency_s": 0.0657
+      },
+      "baseline": {
+        "status": "diagnosed",
+        "root_cause": "No fault detected",
+        "affected_devices": [
+          "SW_CAMPUS_1"
+        ],
+        "status_correct": true,
+        "cause_correct": true,
+        "devices_correct": true,
+        "checks_used": 0,
+        "latency_s": 0.0004
+      }
+    },
+    {
+      "scenario": "congestion",
+      "expected_status": "diagnosed",
+      "expected_root_cause": "Link congestion",
+      "expected_devices": [
+        "SW_CAMPUS_6"
+      ],
+      "pipeline": {
+        "status": "diagnosed",
+        "root_cause": "Link congestion",
+        "affected_devices": [
+          "SW_CAMPUS_6"
+        ],
+        "confidence": 0.875,
+        "confidence_category": "high",
+        "status_correct": true,
+        "cause_correct": true,
+        "devices_correct": true,
+        "checks_used": 0,
+        "latency_s": 0.0118
+      },
+      "baseline": {
+        "status": "diagnosed",
+        "root_cause": "Link congestion",
+        "affected_devices": [
+          "SW_CAMPUS_6"
+        ],
+        "status_correct": true,
+        "cause_correct": true,
+        "devices_correct": true,
+        "checks_used": 0,
+        "latency_s": 0.0003
+      }
+    },
+    {
+      "scenario": "interface_fault",
+      "expected_status": "diagnosed",
+      "expected_root_cause": "Interface or cabling fault on a single link",
+      "expected_devices": [
+        "SW_CAMPUS_2"
+      ],
+      "pipeline": {
+        "status": "diagnosed",
+        "root_cause": "Interface or cabling fault on a single link",
+        "affected_devices": [
+          "SW_CAMPUS_2"
+        ],
+        "confidence": 1.0,
+        "confidence_category": "high",
+        "status_correct": true,
+        "cause_correct": true,
+        "devices_correct": true,
+        "checks_used": 0,
+        "latency_s": 0.0134
+      },
+      "baseline": {
+        "status": "diagnosed",
+        "root_cause": "Interface or cabling fault on a single link",
+        "affected_devices": [
+          "SW_CAMPUS_2"
+        ],
+        "status_correct": true,
+        "cause_correct": true,
+        "devices_correct": true,
+        "checks_used": 0,
+        "latency_s": 0.0003
+      }
+    },
+    {
+      "scenario": "weak_wifi",
+      "expected_status": "diagnosed",
+      "expected_root_cause": "Weak wireless signal",
+      "expected_devices": [
+        "AP_HOSTEL_1"
+      ],
+      "pipeline": {
+        "status": "diagnosed",
+        "root_cause": "Weak wireless signal",
+        "affected_devices": [
+          "AP_HOSTEL_1"
+        ],
+        "confidence": 1.0,
+        "confidence_category": "high",
+        "status_correct": true,
+        "cause_correct": true,
+        "devices_correct": true,
+        "checks_used": 0,
+        "latency_s": 0.0101
+      },
+      "baseline": {
+        "status": "diagnosed",
+        "root_cause": "Weak wireless signal",
+        "affected_devices": [
+          "AP_HOSTEL_1"
+        ],
+        "status_correct": true,
+        "cause_correct": true,
+        "devices_correct": true,
+        "checks_used": 0,
+        "latency_s": 0.0003
+      }
+    },
+    {
+      "scenario": "dns_dhcp_failure",
+      "expected_status": "diagnosed",
+      "expected_root_cause": "DNS or DHCP service failure",
+      "expected_devices": [
+        "DNS_DHCP_01"
+      ],
+      "pipeline": {
+        "status": "diagnosed",
+        "root_cause": "DNS or DHCP service failure",
+        "affected_devices": [
+          "DNS_DHCP_01"
+        ],
+        "confidence": 1.0,
+        "confidence_category": "high",
+        "status_correct": true,
+        "cause_correct": true,
+        "devices_correct": true,
+        "checks_used": 0,
+        "latency_s": 0.0097
+      },
+      "baseline": {
+        "status": "diagnosed",
+        "root_cause": "DNS or DHCP service failure",
+        "affected_devices": [
+          "DNS_DHCP_01"
+        ],
+        "status_correct": true,
+        "cause_correct": true,
+        "devices_correct": true,
+        "checks_used": 0,
+        "latency_s": 0.0002
+      }
+    },
+    {
+      "scenario": "cpu_overload",
+      "expected_status": "diagnosed",
+      "expected_root_cause": "Device CPU overload",
+      "expected_devices": [
+        "SW_CAMPUS_7"
+      ],
+      "pipeline": {
+        "status": "diagnosed",
+        "root_cause": "Device CPU overload",
+        "affected_devices": [
+          "SW_CAMPUS_7"
+        ],
+        "confidence": 1.0,
+        "confidence_category": "high",
+        "status_correct": true,
+        "cause_correct": true,
+        "devices_correct": true,
+        "checks_used": 0,
+        "latency_s": 0.0083
+      },
+      "baseline": {
+        "status": "diagnosed",
+        "root_cause": "Device CPU overload",
+        "affected_devices": [
+          "SW_CAMPUS_7"
+        ],
+        "status_correct": true,
+        "cause_correct": true,
+        "devices_correct": true,
+        "checks_used": 0,
+        "latency_s": 0.0003
+      }
+    },
+    {
+      "scenario": "hardware_failure",
+      "expected_status": "diagnosed",
+      "expected_root_cause": "Hardware failure",
+      "expected_devices": [
+        "SW_CAMPUS_4"
+      ],
+      "pipeline": {
+        "status": "diagnosed",
+        "root_cause": "Hardware failure",
+        "affected_devices": [
+          "SW_CAMPUS_4"
+        ],
+        "confidence": 1.0,
+        "confidence_category": "high",
+        "status_correct": true,
+        "cause_correct": true,
+        "devices_correct": true,
+        "checks_used": 0,
+        "latency_s": 0.0083
+      },
+      "baseline": {
+        "status": "diagnosed",
+        "root_cause": "Hardware failure",
+        "affected_devices": [
+          "SW_CAMPUS_4"
+        ],
+        "status_correct": true,
+        "cause_correct": true,
+        "devices_correct": true,
+        "checks_used": 0,
+        "latency_s": 0.0002
+      }
+    },
+    {
+      "scenario": "upstream_failure",
+      "expected_status": "diagnosed",
+      "expected_root_cause": "Link congestion (shared upstream DIST_SW_HOSTEL; see connectivity scope finding)",
+      "expected_devices": [
+        "SW_CAMPUS_1",
+        "SW_CAMPUS_2",
+        "SW_CAMPUS_3"
+      ],
+      "pipeline": {
+        "status": "diagnosed",
+        "root_cause": "Link congestion",
+        "affected_devices": [
+          "SW_CAMPUS_1"
+        ],
+        "confidence": 0.875,
+        "confidence_category": "high",
+        "status_correct": true,
+        "cause_correct": true,
+        "devices_correct": true,
+        "checks_used": 0,
+        "latency_s": 0.0105
+      },
+      "baseline": {
+        "status": "diagnosed",
+        "root_cause": "Link congestion",
+        "affected_devices": [
+          "SW_CAMPUS_1"
+        ],
+        "status_correct": true,
+        "cause_correct": true,
+        "devices_correct": true,
+        "checks_used": 0,
+        "latency_s": 0.0002
+      }
+    },
+    {
+      "scenario": "simultaneous",
+      "expected_status": "diagnosed",
+      "expected_root_cause": "Two independent faults in non-overlapping topology scopes: primary diagnosis Weak wireless signal (AP_HOSTEL_2); additional_diagnoses carries Interface or cabling fault on a single link (SW_CAMPUS_8)",
+      "expected_devices": [
+        "SW_CAMPUS_8",
+        "AP_HOSTEL_2"
+      ],
+      "pipeline": {
+        "status": "diagnosed",
+        "root_cause": "Weak wireless signal",
+        "affected_devices": [
+          "AP_HOSTEL_2"
+        ],
+        "confidence": 1.0,
+        "confidence_category": "high",
+        "status_correct": true,
+        "cause_correct": true,
+        "devices_correct": true,
+        "checks_used": 0,
+        "latency_s": 0.0083
+      },
+      "baseline": {
+        "status": "diagnosed",
+        "root_cause": "Interface or cabling fault on a single link",
+        "affected_devices": [
+          "SW_CAMPUS_8"
+        ],
+        "status_correct": true,
+        "cause_correct": true,
+        "devices_correct": true,
+        "checks_used": 0,
+        "latency_s": 0.0002
+      }
+    },
+    {
+      "scenario": "insufficient",
+      "expected_status": "insufficient_evidence",
+      "expected_root_cause": null,
+      "expected_devices": [
+        "SW_CAMPUS_9"
+      ],
+      "pipeline": {
+        "status": "insufficient_evidence",
+        "root_cause": null,
+        "affected_devices": [
+          "SW_CAMPUS_9"
+        ],
+        "confidence": 0.0,
+        "confidence_category": "low",
+        "status_correct": true,
+        "cause_correct": true,
+        "devices_correct": true,
+        "checks_used": 0,
+        "latency_s": 0.0056
+      },
+      "baseline": {
+        "status": "diagnosed",
+        "root_cause": "No fault detected",
+        "affected_devices": [
+          "SW_CAMPUS_9"
+        ],
+        "status_correct": false,
+        "cause_correct": false,
+        "devices_correct": true,
+        "checks_used": 0,
+        "latency_s": 0.0002
+      }
+    },
+    {
+      "scenario": "stale",
+      "expected_status": "insufficient_evidence",
+      "expected_root_cause": null,
+      "expected_devices": [
+        "SW_CAMPUS_5"
+      ],
+      "pipeline": {
+        "status": "insufficient_evidence",
+        "root_cause": null,
+        "affected_devices": [
+          "SW_CAMPUS_5"
+        ],
+        "confidence": 0.2,
+        "confidence_category": "low",
+        "status_correct": true,
+        "cause_correct": true,
+        "devices_correct": true,
+        "checks_used": 0,
+        "latency_s": 0.0103
+      },
+      "baseline": {
+        "status": "diagnosed",
+        "root_cause": "Interface or cabling fault on a single link",
+        "affected_devices": [
+          "SW_CAMPUS_5"
+        ],
+        "status_correct": false,
+        "cause_correct": false,
+        "devices_correct": true,
+        "checks_used": 0,
+        "latency_s": 0.0002
+      }
+    },
+    {
+      "scenario": "contradictory",
+      "expected_status": "insufficient_evidence",
+      "expected_root_cause": null,
+      "expected_devices": [
+        "SW_CAMPUS_10"
+      ],
+      "pipeline": {
+        "status": "insufficient_evidence",
+        "root_cause": null,
+        "affected_devices": [
+          "SW_CAMPUS_10"
+        ],
+        "confidence": 0.0,
+        "confidence_category": "low",
+        "status_correct": true,
+        "cause_correct": true,
+        "devices_correct": true,
+        "checks_used": 0,
+        "latency_s": 0.0073
+      },
+      "baseline": {
+        "status": "diagnosed",
+        "root_cause": "No fault detected",
+        "affected_devices": [
+          "SW_CAMPUS_10"
+        ],
+        "status_correct": false,
+        "cause_correct": false,
+        "devices_correct": true,
+        "checks_used": 0,
+        "latency_s": 0.0002
+      }
+    },
+    {
+      "scenario": "ambiguous_loss",
+      "expected_status": "insufficient_evidence",
+      "expected_root_cause": null,
+      "expected_devices": [
+        "SW_CAMPUS_1"
+      ],
+      "pipeline": {
+        "status": "insufficient_evidence",
+        "root_cause": null,
+        "affected_devices": [
+          "SW_CAMPUS_1"
+        ],
+        "confidence": 0.2,
+        "confidence_category": "low",
+        "status_correct": true,
+        "cause_correct": true,
+        "devices_correct": true,
+        "checks_used": 0,
+        "latency_s": 0.0059
+      },
+      "baseline": {
+        "status": "diagnosed",
+        "root_cause": "Interface or cabling fault on a single link",
+        "affected_devices": [
+          "SW_CAMPUS_1"
+        ],
+        "status_correct": false,
+        "cause_correct": false,
+        "devices_correct": true,
+        "checks_used": 0,
+        "latency_s": 0.0002
+      }
+    }
+  ],
+  "metrics": {
+    "pipeline": {
+      "root_cause_accuracy": 1.0,
+      "affected_device_accuracy": 1.0,
+      "correct_abstention_rate": 1.0,
+      "false_confident_diagnoses": 0,
+      "false_confident_diagnoses_rate": 0.0,
+      "average_checks_used": 0.0,
+      "mean_latency_s": 0.01348,
+      "overall_status_accuracy": 1.0,
+      "n_scenarios": 13,
+      "n_diagnosed_expected": 9,
+      "n_abstain_expected": 4
+    },
+    "baseline": {
+      "root_cause_accuracy": 1.0,
+      "affected_device_accuracy": 1.0,
+      "correct_abstention_rate": 0.0,
+      "false_confident_diagnoses": 4,
+      "false_confident_diagnoses_rate": 1.0,
+      "average_checks_used": 0.0,
+      "mean_latency_s": 0.00025,
+      "overall_status_accuracy": 0.6923076923076923,
+      "n_scenarios": 13,
+      "n_diagnosed_expected": 9,
+      "n_abstain_expected": 4
+    }
+  }
+}
