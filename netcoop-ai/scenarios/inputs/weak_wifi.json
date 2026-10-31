@@ -1,0 +1,80 @@
+[
+  {
+    "timestamp": "2026-10-31T17:47:17Z",
+    "device_id": "AP_HOSTEL_1",
+    "metrics": {
+      "cpu_utilization_pct": 15.81,
+      "link_utilization_pct": 29.16,
+      "packet_loss_pct": 2.52,
+      "latency_ms": 50.62,
+      "rssi_dbm": -84.29,
+      "retransmission_pct": 25.5
+    },
+    "status": "Warning"
+  },
+  {
+    "timestamp": "2026-10-31T17:49:17Z",
+    "device_id": "AP_HOSTEL_1",
+    "metrics": {
+      "cpu_utilization_pct": 21.18,
+      "link_utilization_pct": 28.3,
+      "packet_loss_pct": 3.22,
+      "latency_ms": 52.99,
+      "rssi_dbm": -79.97,
+      "retransmission_pct": 24.59
+    },
+    "status": "Warning"
+  },
+  {
+    "timestamp": "2026-10-31T17:51:17Z",
+    "device_id": "AP_HOSTEL_1",
+    "metrics": {
+      "cpu_utilization_pct": 23.24,
+      "link_utilization_pct": 26.91,
+      "packet_loss_pct": 3.65,
+      "latency_ms": 60.29,
+      "rssi_dbm": -82.01,
+      "retransmission_pct": 19.66
+    },
+    "status": "Warning"
+  },
+  {
+    "timestamp": "2026-10-31T17:53:17Z",
+    "device_id": "AP_HOSTEL_1",
+    "metrics": {
+      "cpu_utilization_pct": 23.43,
+      "link_utilization_pct": 21.73,
+      "packet_loss_pct": 3.43,
+      "latency_ms": 60.53,
+      "rssi_dbm": -79.32,
+      "retransmission_pct": 20.44
+    },
+    "status": "Warning"
+  },
+  {
+    "timestamp": "2026-10-31T17:55:17Z",
+    "device_id": "AP_HOSTEL_1",
+    "metrics": {
+      "cpu_utilization_pct": 19.0,
+      "link_utilization_pct": 32.32,
+      "packet_loss_pct": 2.44,
+      "latency_ms": 55.95,
+      "rssi_dbm": -79.15,
+      "retransmission_pct": 20.31
+    },
+    "status": "Warning"
+  },
+  {
+    "timestamp": "2026-10-31T17:57:17Z",
+    "device_id": "AP_HOSTEL_1",
+    "metrics": {
+      "cpu_utilization_pct": 16.04,
+      "link_utilization_pct": 26.67,
+      "packet_loss_pct": 3.51,
+      "latency_ms": 52.38,
+      "rssi_dbm": -78.73,
+      "retransmission_pct": 23.26
+    },
+    "status": "Warning"
+  }
+]

@@ -1,0 +1,80 @@
+[
+  {
+    "timestamp": "2026-10-31T17:47:17Z",
+    "device_id": "DNS_DHCP_01",
+    "metrics": {
+      "cpu_utilization_pct": 16.54,
+      "link_utilization_pct": 21.07,
+      "packet_loss_pct": 0.38,
+      "latency_ms": 11.64,
+      "dns_failure_pct": 29.44,
+      "dhcp_failures": 9
+    },
+    "status": "Warning"
+  },
+  {
+    "timestamp": "2026-10-31T17:49:17Z",
+    "device_id": "DNS_DHCP_01",
+    "metrics": {
+      "cpu_utilization_pct": 14.33,
+      "link_utilization_pct": 17.48,
+      "packet_loss_pct": 0.68,
+      "latency_ms": 18.62,
+      "dns_failure_pct": 36.11,
+      "dhcp_failures": 5
+    },
+    "status": "Warning"
+  },
+  {
+    "timestamp": "2026-10-31T17:51:17Z",
+    "device_id": "DNS_DHCP_01",
+    "metrics": {
+      "cpu_utilization_pct": 19.16,
+      "link_utilization_pct": 20.57,
+      "packet_loss_pct": 0.65,
+      "latency_ms": 13.06,
+      "dns_failure_pct": 37.78,
+      "dhcp_failures": 12
+    },
+    "status": "Warning"
+  },
+  {
+    "timestamp": "2026-10-31T17:53:17Z",
+    "device_id": "DNS_DHCP_01",
+    "metrics": {
+      "cpu_utilization_pct": 15.65,
+      "link_utilization_pct": 20.73,
+      "packet_loss_pct": 0.41,
+      "latency_ms": 13.31,
+      "dns_failure_pct": 33.58,
+      "dhcp_failures": 12
+    },
+    "status": "Warning"
+  },
+  {
+    "timestamp": "2026-10-31T17:55:17Z",
+    "device_id": "DNS_DHCP_01",
+    "metrics": {
+      "cpu_utilization_pct": 16.24,
+      "link_utilization_pct": 17.58,
+      "packet_loss_pct": 0.43,
+      "latency_ms": 18.43,
+      "dns_failure_pct": 39.98,
+      "dhcp_failures": 9
+    },
+    "status": "Warning"
+  },
+  {
+    "timestamp": "2026-10-31T17:57:17Z",
+    "device_id": "DNS_DHCP_01",
+    "metrics": {
+      "cpu_utilization_pct": 21.39,
+      "link_utilization_pct": 17.9,
+      "packet_loss_pct": 0.57,
+      "latency_ms": 12.91,
+      "dns_failure_pct": 42.76,
+      "dhcp_failures": 14
+    },
+    "status": "Warning"
+  }
+]

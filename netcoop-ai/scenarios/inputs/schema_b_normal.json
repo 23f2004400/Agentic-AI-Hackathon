@@ -1,0 +1,74 @@
+[
+  {
+    "schema": "vendorB/2.0",
+    "hostname": "SW_CAMPUS_1",
+    "ts": 1793468837,
+    "health": "Healthy",
+    "lat_s": 0.01301,
+    "jitter_s": 0.00203,
+    "loss_ratio": 0.0,
+    "link_util_pct": 39.22,
+    "cpu_pct": 19.67,
+    "q_drops": 0
+  },
+  {
+    "schema": "vendorB/2.0",
+    "hostname": "SW_CAMPUS_1",
+    "ts": 1793468957,
+    "health": "Healthy",
+    "lat_s": 0.01505,
+    "jitter_s": 0.00122,
+    "loss_ratio": 0.0,
+    "link_util_pct": 34.61,
+    "cpu_pct": 18.5,
+    "q_drops": 0
+  },
+  {
+    "schema": "vendorB/2.0",
+    "hostname": "SW_CAMPUS_1",
+    "ts": 1793469077,
+    "health": "Healthy",
+    "lat_s": 0.01611,
+    "jitter_s": 0.00217,
+    "loss_ratio": 0.0,
+    "link_util_pct": 40.96,
+    "cpu_pct": 25.33,
+    "q_drops": 0
+  },
+  {
+    "schema": "vendorB/2.0",
+    "hostname": "SW_CAMPUS_1",
+    "ts": 1793469197,
+    "health": "Healthy",
+    "lat_s": 0.01451,
+    "jitter_s": 0.00137,
+    "loss_ratio": 0.0,
+    "link_util_pct": 28.27,
+    "cpu_pct": 19.25,
+    "q_drops": 0
+  },
+  {
+    "schema": "vendorB/2.0",
+    "hostname": "SW_CAMPUS_1",
+    "ts": 1793469317,
+    "health": "Healthy",
+    "lat_s": 0.01288,
+    "jitter_s": 0.00223,
+    "loss_ratio": 0.0,
+    "link_util_pct": 40.97,
+    "cpu_pct": 27.52,
+    "q_drops": 0
+  },
+  {
+    "schema": "vendorB/2.0",
+    "hostname": "SW_CAMPUS_1",
+    "ts": 1793469437,
+    "health": "Healthy",
+    "lat_s": 0.01506,
+    "jitter_s": 0.00198,
+    "loss_ratio": 0.0,
+    "link_util_pct": 33.78,
+    "cpu_pct": 17.27,
+    "q_drops": 0
+  }
+]

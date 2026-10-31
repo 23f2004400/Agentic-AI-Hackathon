@@ -89,7 +89,9 @@ def score_device(store: EvidenceStore, device: str, agent_findings: list[Finding
         missing = [m for m in required if latest_observation(store, device, m) is None]
 
         if hyp == "healthy":
-            score = 0.0 if any_breach else 1.0
+            # "Everything's fine" is only as credible as how much we actually measured --
+            # zero evidence must not score the same as a fully-covered clean bill of health.
+            score = (0.0 if any_breach else 1.0) * coverage
         else:
             support_list = fired_supports.get(hyp, [])
             contra_list = fired_contradicts.get(hyp, [])

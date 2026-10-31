@@ -1,0 +1,89 @@
+{
+  "normal": {
+    "root_cause": "No fault detected",
+    "affected_devices": [
+      "SW_CAMPUS_1"
+    ],
+    "expected_status": "diagnosed"
+  },
+  "congestion": {
+    "root_cause": "Link congestion",
+    "affected_devices": [
+      "SW_CAMPUS_6"
+    ],
+    "expected_status": "diagnosed"
+  },
+  "interface_fault": {
+    "root_cause": "Interface or cabling fault on a single link",
+    "affected_devices": [
+      "SW_CAMPUS_2"
+    ],
+    "expected_status": "diagnosed"
+  },
+  "weak_wifi": {
+    "root_cause": "Weak wireless signal",
+    "affected_devices": [
+      "AP_HOSTEL_1"
+    ],
+    "expected_status": "diagnosed"
+  },
+  "dns_dhcp_failure": {
+    "root_cause": "DNS or DHCP service failure",
+    "affected_devices": [
+      "DNS_DHCP_01"
+    ],
+    "expected_status": "diagnosed"
+  },
+  "cpu_overload": {
+    "root_cause": "Device CPU overload",
+    "affected_devices": [
+      "SW_CAMPUS_7"
+    ],
+    "expected_status": "diagnosed"
+  },
+  "hardware_failure": {
+    "root_cause": "Hardware failure",
+    "affected_devices": [
+      "SW_CAMPUS_4"
+    ],
+    "expected_status": "diagnosed"
+  },
+  "upstream_failure": {
+    "root_cause": "Link congestion (shared upstream DIST_SW_HOSTEL; see connectivity scope finding)",
+    "affected_devices": [
+      "SW_CAMPUS_1",
+      "SW_CAMPUS_2",
+      "SW_CAMPUS_3"
+    ],
+    "expected_status": "diagnosed"
+  },
+  "simultaneous": {
+    "root_cause": "Two independent faults: interface fault on SW_CAMPUS_8, weak wireless signal on AP_HOSTEL_2 (current reporting only surfaces the stronger of the two; see limitations)",
+    "affected_devices": [
+      "SW_CAMPUS_8",
+      "AP_HOSTEL_2"
+    ],
+    "expected_status": "diagnosed"
+  },
+  "insufficient": {
+    "root_cause": null,
+    "affected_devices": [
+      "SW_CAMPUS_9"
+    ],
+    "expected_status": "insufficient_evidence"
+  },
+  "stale": {
+    "root_cause": null,
+    "affected_devices": [
+      "SW_CAMPUS_5"
+    ],
+    "expected_status": "insufficient_evidence"
+  },
+  "contradictory": {
+    "root_cause": null,
+    "affected_devices": [
+      "SW_CAMPUS_10"
+    ],
+    "expected_status": "insufficient_evidence"
+  }
+}

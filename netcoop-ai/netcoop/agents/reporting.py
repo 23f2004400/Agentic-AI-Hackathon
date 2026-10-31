@@ -35,7 +35,8 @@ class ReportingAgent:
     def build_report(self, *, incident_id: str, store: EvidenceStore,
                       correlation_envelope: Envelope, agent_findings: list[Finding],
                       evidence_sources: list[str], rejected_inputs: list[dict],
-                      log_path: str, had_agent_errors: bool = False) -> Report:
+                      log_path: str, had_agent_errors: bool = False,
+                      agent_assumptions: list[str] = ()) -> Report:
         devices_payload: dict = correlation_envelope.payload.get("devices", {})
 
         if not devices_payload:
@@ -94,6 +95,8 @@ class ReportingAgent:
                 interpretation=finding.detail, obs_id=obs_id, raw_ref=raw_ref,
             ))
 
+        scope_notes = [f.detail for f in agent_findings if f.claim == "shared_upstream_scope"]
+
         limitations: list[str] = []
         if top["missing"]:
             limitations.append(
@@ -111,6 +114,10 @@ class ReportingAgent:
                 f"{len(devices_payload)} devices reported; this report focuses on {best_device}, "
                 "the strongest signal. Cross-device correlation is not yet implemented."
             )
+        for note in scope_notes:
+            limitations.append(note)
+        for a in dict.fromkeys(agent_assumptions):  # dedupe, preserve order
+            limitations.append(a)
         limitations.append("Confidence is a heuristic rule-based score, not a calibrated probability.")
 
         return Report(

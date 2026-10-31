@@ -10,6 +10,7 @@ from uuid import uuid4
 
 from . import ingest
 from .agents.base import Agent
+from .agents.connectivity import ConnectivityAgent
 from .agents.correlation import CorrelationAgent
 from .agents.infrastructure import InfrastructureAgent
 from .agents.performance import PerformanceAgent
@@ -17,14 +18,16 @@ from .agents.reporting import ReportingAgent
 from .evidence import EvidenceStore
 from .protocol import Envelope, Finding, MsgType
 from .report import Report
+from .topology import Topology
 
 LOGS_DIR = Path(__file__).resolve().parent.parent / "logs"
 
 
 class Orchestrator:
-    def __init__(self, analysis_agents: list[Agent] | None = None, logs_dir: Path | str = LOGS_DIR):
+    def __init__(self, analysis_agents: list[Agent] | None = None, logs_dir: Path | str = LOGS_DIR,
+                 topology: Topology | None = None):
         self.analysis_agents = analysis_agents if analysis_agents is not None else [
-            PerformanceAgent(), InfrastructureAgent(),
+            PerformanceAgent(), InfrastructureAgent(), ConnectivityAgent(topology=topology),
         ]
         self.correlation_agent = CorrelationAgent()
         self.reporting_agent = ReportingAgent()
@@ -48,6 +51,7 @@ class Orchestrator:
 
         agent_findings: list[Finding] = []
         evidence_sources: list[str] = []
+        agent_assumptions: list[str] = []
         had_agent_errors = False
 
         for agent in self.analysis_agents:
@@ -69,6 +73,7 @@ class Orchestrator:
                 continue
             self._log(incident_id, reply)
             agent_findings.extend(reply.findings)
+            agent_assumptions.extend(reply.assumptions)
             evidence_sources.append(agent.name)
 
         correlation_task = Envelope(
@@ -85,6 +90,7 @@ class Orchestrator:
             incident_id=incident_id, store=store, correlation_envelope=correlation_reply,
             agent_findings=agent_findings, evidence_sources=evidence_sources,
             rejected_inputs=rejected, log_path=log_path, had_agent_errors=had_agent_errors,
+            agent_assumptions=agent_assumptions,
         )
 
         self._log(incident_id, Envelope(

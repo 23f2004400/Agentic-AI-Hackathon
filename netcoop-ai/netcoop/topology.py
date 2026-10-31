@@ -15,9 +15,17 @@ from pydantic import BaseModel, ConfigDict
 Medium = Literal["wired", "wireless"]
 
 
+class TopologyError(ValueError):
+    pass
+
+
 class Link(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
+    # By convention `a` is the upstream/parent end and `b` is the downstream/child
+    # end -- used by the directed queries (downstream_of, common_upstream,
+    # is_wireless) below. The undirected queries (neighbors, medium_between,
+    # common_neighbor) ignore this convention and treat every link as symmetric.
     a: str
     b: str
     medium: Medium = "wired"
@@ -65,8 +73,74 @@ class Topology(BaseModel):
         common -= set(devices)
         return next(iter(common)) if len(common) == 1 else None
 
+    # ---- directed hierarchy queries (parent = link.a, child = link.b) -----
+
+    def _require_known(self, device: str) -> None:
+        if device not in self.known_devices():
+            raise TopologyError(f"unknown device {device!r}")
+
+    def parent_of(self, device: str) -> str | None:
+        self._require_known(device)
+        for link in self.links:
+            if link.b == device:
+                return link.a
+        return None
+
+    def downstream_of(self, node: str) -> set[str]:
+        """All devices reachable downstream (direct and transitive children) of `node`."""
+        self._require_known(node)
+        direct = {link.b for link in self.links if link.a == node}
+        result = set(direct)
+        for child in direct:
+            result |= self.downstream_of(child)
+        return result
+
+    def ancestors_of(self, device: str) -> list[str]:
+        """Upstream chain from `device` to the root, nearest first."""
+        self._require_known(device)
+        chain: list[str] = []
+        seen: set[str] = set()
+        current = device
+        while True:
+            parent = self.parent_of(current)
+            if parent is None or parent in seen:
+                break
+            chain.append(parent)
+            seen.add(parent)
+            current = parent
+        return chain
+
+    def common_upstream(self, devices: list[str]) -> str | None:
+        """Nearest ancestor shared by every device in `devices`, or None if there isn't one."""
+        for d in devices:
+            self._require_known(d)
+        if not devices:
+            return None
+        ancestor_sets = [set(self.ancestors_of(d)) for d in devices]
+        common = ancestor_sets[0]
+        for s in ancestor_sets[1:]:
+            common &= s
+        if not common:
+            return None
+        for node in self.ancestors_of(devices[0]):  # nearest-first order
+            if node in common:
+                return node
+        return None
+
+    def is_wireless(self, device: str) -> bool:
+        """True if `device`'s upstream link is wireless (e.g. an access point client)."""
+        self._require_known(device)
+        return any(link.b == device and link.medium == "wireless" for link in self.links)
+
 
 def load_topology(path: str | Path) -> Topology:
     with open(path, "r", encoding="utf-8") as f:
         data = json.load(f)
-    return Topology(**data)
+    topo = Topology(**data)
+    declared = set(topo.devices)
+    if declared:
+        referenced = {link.a for link in topo.links} | {link.b for link in topo.links}
+        unknown = referenced - declared
+        if unknown:
+            raise TopologyError(f"topology.json references undeclared devices: {sorted(unknown)}")
+    return topo

@@ -1,0 +1,50 @@
+[
+  {
+    "timestamp": "2026-10-31T17:47:17Z",
+    "device_id": "SW_CAMPUS_9",
+    "metrics": {
+      "queue_drops": 3
+    },
+    "status": "Warning"
+  },
+  {
+    "timestamp": "2026-10-31T17:49:17Z",
+    "device_id": "SW_CAMPUS_9",
+    "metrics": {
+      "queue_drops": 3
+    },
+    "status": "Warning"
+  },
+  {
+    "timestamp": "2026-10-31T17:51:17Z",
+    "device_id": "SW_CAMPUS_9",
+    "metrics": {
+      "queue_drops": 3
+    },
+    "status": "Warning"
+  },
+  {
+    "timestamp": "2026-10-31T17:53:17Z",
+    "device_id": "SW_CAMPUS_9",
+    "metrics": {
+      "queue_drops": 3
+    },
+    "status": "Warning"
+  },
+  {
+    "timestamp": "2026-10-31T17:55:17Z",
+    "device_id": "SW_CAMPUS_9",
+    "metrics": {
+      "queue_drops": 2
+    },
+    "status": "Warning"
+  },
+  {
+    "timestamp": "2026-10-31T17:57:17Z",
+    "device_id": "SW_CAMPUS_9",
+    "metrics": {
+      "queue_drops": 4
+    },
+    "status": "Warning"
+  }
+]

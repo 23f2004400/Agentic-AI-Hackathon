@@ -1,0 +1,68 @@
+[
+  {
+    "schema": "vendorB/2.0",
+    "hostname": "SW_CAMPUS_7",
+    "ts": 1793468837,
+    "health": "Warning",
+    "lat_s": 0.24064,
+    "loss_ratio": 0.0046,
+    "link_util_pct": 42.17,
+    "cpu_pct": 95.83,
+    "q_drops": 7
+  },
+  {
+    "schema": "vendorB/2.0",
+    "hostname": "SW_CAMPUS_7",
+    "ts": 1793468957,
+    "health": "Warning",
+    "lat_s": 0.24931,
+    "loss_ratio": 0.001,
+    "link_util_pct": 35.8,
+    "cpu_pct": 96.34,
+    "q_drops": 2
+  },
+  {
+    "schema": "vendorB/2.0",
+    "hostname": "SW_CAMPUS_7",
+    "ts": 1793469077,
+    "health": "Warning",
+    "lat_s": 0.19276,
+    "loss_ratio": 0.0048,
+    "link_util_pct": 37.51,
+    "cpu_pct": 96.5,
+    "q_drops": 7
+  },
+  {
+    "schema": "vendorB/2.0",
+    "hostname": "SW_CAMPUS_7",
+    "ts": 1793469197,
+    "health": "Warning",
+    "lat_s": 0.20964,
+    "loss_ratio": 0.0036,
+    "link_util_pct": 43.52,
+    "cpu_pct": 95.57,
+    "q_drops": 10
+  },
+  {
+    "schema": "vendorB/2.0",
+    "hostname": "SW_CAMPUS_7",
+    "ts": 1793469317,
+    "health": "Warning",
+    "lat_s": 0.23453,
+    "loss_ratio": 0.0038,
+    "link_util_pct": 37.1,
+    "cpu_pct": 95.27,
+    "q_drops": 5
+  },
+  {
+    "schema": "vendorB/2.0",
+    "hostname": "SW_CAMPUS_7",
+    "ts": 1793469437,
+    "health": "Warning",
+    "lat_s": 0.21091,
+    "loss_ratio": 0.0014,
+    "link_util_pct": 41.94,
+    "cpu_pct": 97.32,
+    "q_drops": 2
+  }
+]

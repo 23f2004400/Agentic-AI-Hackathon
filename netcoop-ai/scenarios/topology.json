@@ -1,0 +1,39 @@
+{
+  "devices": [
+    "CORE_SW_01",
+    "DIST_SW_HOSTEL",
+    "DIST_SW_ACAD",
+    "DNS_DHCP_01",
+    "SW_CAMPUS_1",
+    "SW_CAMPUS_2",
+    "SW_CAMPUS_3",
+    "SW_CAMPUS_4",
+    "SW_CAMPUS_5",
+    "SW_CAMPUS_6",
+    "SW_CAMPUS_7",
+    "SW_CAMPUS_8",
+    "SW_CAMPUS_9",
+    "SW_CAMPUS_10",
+    "AP_HOSTEL_1",
+    "AP_HOSTEL_2"
+  ],
+  "links": [
+    {"a": "CORE_SW_01", "b": "DIST_SW_HOSTEL", "medium": "wired"},
+    {"a": "CORE_SW_01", "b": "DIST_SW_ACAD", "medium": "wired"},
+    {"a": "CORE_SW_01", "b": "DNS_DHCP_01", "medium": "wired"},
+
+    {"a": "DIST_SW_HOSTEL", "b": "SW_CAMPUS_1", "medium": "wired"},
+    {"a": "DIST_SW_HOSTEL", "b": "SW_CAMPUS_2", "medium": "wired"},
+    {"a": "DIST_SW_HOSTEL", "b": "SW_CAMPUS_3", "medium": "wired"},
+    {"a": "DIST_SW_HOSTEL", "b": "SW_CAMPUS_4", "medium": "wired"},
+    {"a": "DIST_SW_HOSTEL", "b": "SW_CAMPUS_5", "medium": "wired"},
+    {"a": "DIST_SW_HOSTEL", "b": "AP_HOSTEL_1", "medium": "wireless"},
+    {"a": "DIST_SW_HOSTEL", "b": "AP_HOSTEL_2", "medium": "wireless"},
+
+    {"a": "DIST_SW_ACAD", "b": "SW_CAMPUS_6", "medium": "wired"},
+    {"a": "DIST_SW_ACAD", "b": "SW_CAMPUS_7", "medium": "wired"},
+    {"a": "DIST_SW_ACAD", "b": "SW_CAMPUS_8", "medium": "wired"},
+    {"a": "DIST_SW_ACAD", "b": "SW_CAMPUS_9", "medium": "wired"},
+    {"a": "DIST_SW_ACAD", "b": "SW_CAMPUS_10", "medium": "wired"}
+  ]
+}

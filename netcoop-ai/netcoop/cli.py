@@ -11,6 +11,7 @@ import sys
 from pathlib import Path
 
 from .orchestrator import Orchestrator
+from .topology import load_topology
 
 REPORTS_DIR = Path(__file__).resolve().parent.parent / "reports"
 
@@ -71,7 +72,8 @@ def _print_message_flow(log_path: Path) -> None:
 
 
 def run_command(args: argparse.Namespace) -> int:
-    orchestrator = Orchestrator()
+    topology = load_topology(args.topology) if args.topology else None
+    orchestrator = Orchestrator(topology=topology)
     report = orchestrator.run(args.file, incident_id=args.incident_id)
     report_dict = report.model_dump(mode="json")
 
@@ -97,6 +99,7 @@ def main(argv: list[str] | None = None) -> int:
     run_parser = sub.add_parser("run", help="Diagnose a telemetry file")
     run_parser.add_argument("file", help="Path to a Schema A or Schema B JSON input file")
     run_parser.add_argument("--incident-id", default=None)
+    run_parser.add_argument("--topology", default=None, help="Path to a topology.json file")
     run_parser.set_defaults(func=run_command)
 
     args = parser.parse_args(argv)

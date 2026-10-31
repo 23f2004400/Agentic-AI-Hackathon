@@ -17,8 +17,23 @@ from ..protocol import Envelope, Finding, MsgType, Observation
 
 
 def latest_observation(store: EvidenceStore, device: str, metric: str) -> Observation | None:
+    """The most recent observation for (device, metric), or None if there isn't one
+    or the only one(s) available are stale.
+
+    "Now" is the latest timestamp seen anywhere in the store, not wall-clock time:
+    scenario files have fixed timestamps, and staleness should reflect how old a
+    reading is relative to the rest of the incident's telemetry, not whenever
+    someone happens to run the CLI.
+    """
     candidates = [o for o in store.observations.values() if o.device == device and o.metric == metric]
-    return max(candidates, key=lambda o: o.timestamp) if candidates else None
+    if not candidates:
+        return None
+    latest = max(candidates, key=lambda o: o.timestamp)
+    if store.observations:
+        reference = max(o.timestamp for o in store.observations.values())
+        if reference - latest.timestamp > store.max_age:
+            return None
+    return latest
 
 
 class Agent(ABC):
