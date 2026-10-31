@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-10-14T06:12:03.118402Z",
+  "device_id": "SW_CAMPUS_2",
+  "metrics": {
+    "cpu_utilization_pct": 22.41,
+    "foobar_pct": 12.3
+  },
+  "status": "Healthy"
+}

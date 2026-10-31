@@ -1,0 +1,38 @@
+# Declarative field mapping for "Schema B", our deliberately different vendor
+# format: flat, hostname, lat_s seconds, loss_ratio 0-1, epoch timestamps.
+# Example record:
+# {"schema": "vendorB/2.0", "hostname": "SW_CAMPUS_4", "ts": 1760425549,
+#  "lat_s": 0.926, "loss_ratio": 0.2851, "link_util_pct": 100.0, "cpu_pct": 99.9,
+#  "q_drops": 13416, "if_errors": 382, "health": "critical"}
+
+schema: vendorB/2.0
+device_field: hostname
+timestamp_field: ts
+timestamp_format: epoch_s
+status_field: health
+
+fields:
+  lat_s:
+    metric: latency
+    unit: s
+  jitter_s:
+    metric: jitter
+    unit: s
+  loss_ratio:
+    metric: packet_loss
+    unit: ratio
+  link_util_pct:
+    metric: link_utilization
+    unit: pct
+  cpu_pct:
+    metric: cpu
+    unit: pct
+  mem_pct:
+    metric: memory
+    unit: pct
+  q_drops:
+    metric: queue_drops
+    unit: null
+  if_errors:
+    metric: interface_errors
+    unit: null

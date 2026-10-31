@@ -1,0 +1,12 @@
+{
+  "schema": "vendorB/2.0",
+  "hostname": "SW_CAMPUS_4",
+  "ts": 1791961549,
+  "lat_s": 0.92646,
+  "loss_ratio": 0.2851,
+  "link_util_pct": 100.0,
+  "cpu_pct": 99.9,
+  "q_drops": 13416,
+  "if_errors": 382,
+  "health": "Critical"
+}
