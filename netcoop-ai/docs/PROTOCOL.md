@@ -182,20 +182,58 @@ candidates and a next check, exactly as CLAUDE.md requires.
 
 ## 7. Targeted diagnostic checks (`netcoop/checks.py`)
 
+Checks are **named and declared**, not derived from a generic heuristic.
+`rules.yaml`'s `checks` section lists each one — a stable name
+(`upstream_link_utilization`, `interface_counters_next_window`,
+`wifi_client_rssi`, `dns_probe`), the single metric it re-polls, and which
+hypothesis pairs it's able to discriminate between:
+
+```yaml
+checks:
+  upstream_link_utilization:
+    metric: link_utilization
+    discriminates: [[link_congestion, interface_fault], [link_congestion, cpu_overload], ...]
+```
+
 When the top two hypotheses are too close (margin < 0.2), the orchestrator
-may request one targeted check per round, up to 2 per incident, stopping
-early once margin ≥ 0.2. A check is not live telemetry — there are no real
-devices — it's a pre-authored file at `<checks_dir>/<device>__<metric>.json`,
-in the same Schema A format as ordinary input, representing what a human or
-script would obtain by proactively re-polling that device right now. If no
-matching file exists, the orchestrator records that plainly
-(`"no check available for <metric> on <device>"`) and stops; a check never
-fabricates data or lowers a threshold to manufacture a conclusion. Applying a
-check re-runs every analysis agent and the correlation agent against the
-updated store, so new data can genuinely change the ranking (see
-`scenarios/checks/stale/` and `scenarios/checks/insufficient/`, which do
-exactly that; `scenarios/checks/contradictory/` deliberately doesn't exist,
-demonstrating the "no check available" path).
+looks up `checks.discriminating_check(top_hypothesis, second_hypothesis)` —
+the first declared check whose `discriminates` list contains that unordered
+pair — and requests it, up to 2 rounds per incident, stopping early once
+margin ≥ 0.2. If no check is declared for that exact pair, it's recorded as
+`check_failed` (`"no discriminating check declared in rules.yaml for this
+hypothesis pair"`) and the loop stops rather than guessing.
+
+A check is not live telemetry — there are no real devices — it's a
+pre-authored file at `<checks_dir>/<check_name>.json`, ingested through the
+*exact same* `ingest.load_file` validation path as ordinary input (so a
+malformed check file is rejected the same way a malformed input file would
+be, never crashes the run). It represents what a human or script would
+obtain by actually running that specific diagnostic action right now. If the
+file doesn't exist, or ingest rejects every record in it, the outcome is
+`check_failed`, recorded plainly, and diagnosis continues on whatever
+evidence is already on hand — a check never fabricates data or lowers a
+threshold to manufacture a conclusion.
+
+Applying a check re-runs every analysis agent and the correlation agent
+against the updated store, so new data can genuinely change the ranking.
+Two scenarios demonstrate a check changing the outcome outright:
+`scenarios/checks/stale/` and `scenarios/checks/insufficient/` both resolve
+their scenario from `insufficient_evidence` to a confident diagnosis.
+`scenarios/inputs/ambiguous_loss.json` is the flagship case — `link_congestion`
+and `interface_fault` are genuinely tied without a check, and the *same*
+declared check (`upstream_link_utilization`) resolves to opposite diagnoses
+depending on which variant directory answers it:
+
+```
+python -m netcoop run scenarios/inputs/ambiguous_loss.json --checks scenarios/checks/ambiguous_loss_A
+# -> "Link congestion" (high upstream utilization)
+python -m netcoop run scenarios/inputs/ambiguous_loss.json --checks scenarios/checks/ambiguous_loss_B
+# -> "Interface or cabling fault on a single link" (low utilization, rising error counters)
+```
+
+`scenarios/checks/contradictory/` deliberately doesn't exist, demonstrating
+the `check_failed` path when a checks directory is supplied but holds
+nothing useful for this incident.
 
 ## 8. Topology and multi-device scope (`netcoop/topology.py`)
 

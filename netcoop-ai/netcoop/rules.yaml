@@ -229,3 +229,39 @@ confidence:
   high: {score: 0.75, margin: 0.2}
   medium: {score: 0.5, margin: 0.1}
   insufficient_evidence: {coverage: 0.5, score: 0.3, margin: 0.1}
+
+# Named targeted diagnostic checks. Each is a specific, realistic diagnostic
+# action (not a generic "re-poll everything") tied to one metric, declared
+# here against the hypothesis pairs it's able to tell apart. When the top two
+# hypotheses are too close, the orchestrator looks up the first check whose
+# `discriminates` list contains that pair and requests it; a file for the
+# check may exist at <checks_dir>/<check_name>.json or not (recorded as
+# check_failed either way -- this is declarative metadata, not a promise a
+# file exists).
+checks:
+  upstream_link_utilization:
+    metric: link_utilization
+    description: "Re-poll the upstream link's utilization and queue counters"
+    discriminates:
+      - [link_congestion, interface_fault]
+      - [link_congestion, cpu_overload]
+      - [link_congestion, hardware_failure]
+  interface_counters_next_window:
+    metric: interface_errors
+    description: "Re-poll interface error counters over the next window"
+    discriminates:
+      - [interface_fault, link_congestion]
+      - [interface_fault, hardware_failure]
+      - [interface_fault, healthy]
+  wifi_client_rssi:
+    metric: rssi
+    description: "Measure the wireless client's RSSI directly"
+    discriminates:
+      - [weak_wifi, interface_fault]
+      - [weak_wifi, healthy]
+  dns_probe:
+    metric: dns_failure
+    description: "Run an active DNS probe against the resolver"
+    discriminates:
+      - [dns_dhcp_failure, link_congestion]
+      - [dns_dhcp_failure, healthy]

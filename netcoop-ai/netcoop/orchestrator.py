@@ -19,25 +19,11 @@ from .agents.reporting import ReportingAgent
 from .evidence import EvidenceStore
 from .protocol import Envelope, Finding, MsgType
 from .report import Report
-from .rules import load_rules
 from .topology import Topology
 
 LOGS_DIR = Path(__file__).resolve().parent.parent / "logs"
 MAX_CHECKS = 2
 MARGIN_CONFIDENT_ENOUGH = 0.2  # stop requesting checks once margin reaches this
-
-RULES = load_rules()
-HYPOTHESES = RULES.get("hypotheses", {})
-
-
-def _check_target(top: dict) -> str | None:
-    """The single metric a check should fetch next: the highest-priority missing
-    required metric, or that hypothesis's first required metric if none is
-    missing (re-polling to see whether the picture is still ambiguous)."""
-    if top["missing"]:
-        return top["missing"][0]
-    required = HYPOTHESES.get(top["hypothesis"], {}).get("required_metrics", [])
-    return required[0] if required else None
 
 
 class Orchestrator:
@@ -123,28 +109,39 @@ class Orchestrator:
             if not devices_payload:
                 break
             best_device = max(devices_payload, key=lambda d: devices_payload[d]["ranking"][0]["score"])
-            top = devices_payload[best_device]["ranking"][0]
+            ranking = devices_payload[best_device]["ranking"]
             margin = devices_payload[best_device]["margin"]
             if margin >= MARGIN_CONFIDENT_ENOUGH:
                 break  # already confident enough; no need to spend a check
-            target_metric = _check_target(top)
-            if target_metric is None or self.checks_dir is None:
-                reason = "no actionable metric to check" if target_metric is None else "no checks directory provided"
-                checks_performed.append({"name": f"{target_metric or '?'} for {best_device}", "result": reason})
+
+            top_hyp = ranking[0]["hypothesis"]
+            second_hyp = ranking[1]["hypothesis"] if len(ranking) > 1 else None
+            check_name = checks.discriminating_check(top_hyp, second_hyp) if second_hyp else None
+            if check_name is None:
+                checks_performed.append({
+                    "name": f"(none declared for {top_hyp} vs {second_hyp})", "status": "check_failed",
+                    "result": "no discriminating check declared in rules.yaml for this hypothesis pair",
+                })
+                break
+            if self.checks_dir is None:
+                checks_performed.append({
+                    "name": check_name, "status": "check_failed", "result": "no checks directory provided",
+                })
                 break
 
             self._log(incident_id, Envelope(
                 incident_id=incident_id, sender="orchestrator", recipient="checks",
-                type=MsgType.CHECK_REQUEST, payload={"device": best_device, "metric": target_metric},
+                type=MsgType.CHECK_REQUEST,
+                payload={"check": check_name, "device": best_device, "discriminates": [top_hyp, second_hyp]},
             ))
-            applied, result_text = checks.perform(store, self.checks_dir, best_device, target_metric)
+            outcome = checks.perform(store, self.checks_dir, check_name)
             self._log(incident_id, Envelope(
                 incident_id=incident_id, sender="checks", recipient="orchestrator",
-                type=MsgType.CHECK_RESULT, payload={"applied": applied, "result": result_text},
+                type=MsgType.CHECK_RESULT, payload={"status": outcome.status, "result": outcome.result},
             ))
-            checks_performed.append({"name": f"{target_metric} for {best_device}", "result": result_text})
-            if not applied:
-                break  # nothing more to try for this target; stop rather than guess again
+            checks_performed.append({"name": outcome.name, "status": outcome.status, "result": outcome.result})
+            if outcome.status != "applied":
+                break  # nothing more to try for this check; stop rather than guess again
 
             # New data may have changed the picture: re-run analysis and correlation.
             devices = sorted({o.device for o in store.observations.values()})

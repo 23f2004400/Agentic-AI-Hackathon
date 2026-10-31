@@ -1,7 +1,8 @@
 {
-  "timestamp": "2026-10-31T19:00:23Z",
+  "timestamp": "2026-10-31T21:56:21Z",
   "device_id": "SW_CAMPUS_5",
   "metrics": {
+    "link_utilization_pct": 35.0,
     "interface_errors": 85
   },
   "status": "Warning"

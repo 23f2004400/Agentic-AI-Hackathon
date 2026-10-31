@@ -193,7 +193,7 @@ def test_no_matching_check_file_leaves_contradictory_insufficient(logs_dir):
     report = o.run(SCENARIOS / "contradictory.json", incident_id="M5-check-contradictory")
     assert report.status == "insufficient_evidence"
     assert report.suspected_root_cause is None
-    assert "no check available" in report.checks_performed[0].result
+    assert "no check file found" in report.checks_performed[0].result
 
 def test_checks_budget_is_at_most_two(logs_dir):
     o = Orchestrator(logs_dir=logs_dir, checks_dir=CHECKS_DIR / "insufficient")

@@ -50,6 +50,7 @@ class CheckPerformed(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     name: str
+    status: Literal["applied", "check_failed"]
     result: str
 
 

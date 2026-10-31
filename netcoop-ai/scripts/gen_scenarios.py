@@ -190,29 +190,61 @@ def gen_simultaneous() -> list[dict]:
     return gen_interface_fault("SW_CAMPUS_8") + gen_weak_wifi("AP_HOSTEL_2")
 
 
-# ---- targeted check files ---------------------------------------------------
-# {scenario: {(device, metric): record}} -- orchestrator looks these up as
-# <checks_dir>/<device>__<metric>.json when the top two hypotheses are too
-# close to call. Timestamped after the scenario's own samples so they read as
-# the freshest available data once applied.
+def gen_ambiguous_loss(device: str) -> list[dict]:
+    """link_congestion and interface_fault are both plausible and neither is
+    confident: elevated packet loss (weakly supports both), link utilization
+    just under the congestion threshold, latency unremarkable, and no
+    interface_errors reported at all -- that missing reading is exactly what
+    rules.yaml's upstream_link_utilization check (declared to discriminate
+    this pair) will reveal."""
+    return [record(device, t, {
+        "cpu_utilization_pct": jitter(40, 5), "link_utilization_pct": jitter(78, 4),
+        "packet_loss_pct": jitter(8, 1.5), "latency_ms": jitter(100, 15),
+        "queue_drops": random.randint(20, 70),
+    }, "Warning") for t in sample_times()]
 
-CHECKS: dict[str, dict[tuple[str, str], dict]] = {
+
+# ---- targeted check files ---------------------------------------------------
+# {checks_dir_name: {check_name: record}} -- orchestrator looks these up as
+# <checks_dir>/<check_name>.json when the top two hypotheses are too close to
+# call and rules.yaml declares a check that discriminates between them.
+# Timestamped after the relevant scenario's own samples so they read as the
+# freshest available data once applied. A checks_dir_name need not match a
+# SCENARIOS key one-for-one -- ambiguous_loss_A/_B are two alternate takes on
+# the same "ambiguous_loss" scenario, selected via --checks.
+
+CHECKS: dict[str, dict[str, dict]] = {
     "stale": {
-        # Confirms the one reading the "stale" scenario deliberately excluded:
-        # re-polling interface_errors should resolve the ambiguity in favor of
-        # interface_fault.
-        ("SW_CAMPUS_5", "interface_errors"): record(
-            "SW_CAMPUS_5", NOW + timedelta(minutes=1), {"interface_errors": 85}, "Warning",
-        ),
+        # link_congestion vs interface_fault, same pair as ambiguous_loss below,
+        # so the same declared check (upstream_link_utilization) applies. A real
+        # re-poll of the uplink naturally returns more than one counter: low
+        # utilization rules out congestion further, and the interface_errors
+        # reading confirms the one the "stale" scenario had to exclude.
+        "upstream_link_utilization": record("SW_CAMPUS_5", NOW + timedelta(minutes=1), {
+            "link_utilization_pct": 35.0, "interface_errors": 85,
+        }, "Warning"),
     },
     "insufficient": {
         # A full re-poll of the device that reported almost nothing -- a check
         # naturally returns everything currently available, not just the one
         # metric that was missing.
-        ("SW_CAMPUS_9", "link_utilization"): record("SW_CAMPUS_9", NOW + timedelta(minutes=1), {
+        "upstream_link_utilization": record("SW_CAMPUS_9", NOW + timedelta(minutes=1), {
             "cpu_utilization_pct": jitter(24, 4), "link_utilization_pct": jitter(28, 5),
             "packet_loss_pct": 0.0, "latency_ms": jitter(13, 3), "queue_drops": random.randint(0, 3),
         }, "Healthy"),
+    },
+    "ambiguous_loss_A": {
+        # High upstream utilization + elevated queue drops: confirms congestion.
+        "upstream_link_utilization": record("SW_CAMPUS_1", NOW + timedelta(minutes=1), {
+            "link_utilization_pct": 93.0, "queue_drops": 180,
+        }, "Warning"),
+    },
+    "ambiguous_loss_B": {
+        # Low upstream utilization (rules out congestion) + rising interface
+        # errors: confirms an interface fault instead.
+        "upstream_link_utilization": record("SW_CAMPUS_1", NOW + timedelta(minutes=1), {
+            "link_utilization_pct": 42.0, "interface_errors": 48,
+        }, "Warning"),
     },
     # Deliberately no check for "contradictory" or the M3 latency_spike sample:
     # CLAUDE.md is explicit that util 60-85 with few drops proves no cause, and
@@ -235,6 +267,7 @@ SCENARIOS: dict[str, list[dict]] = {
     "insufficient": gen_insufficient("SW_CAMPUS_9"),
     "stale": gen_stale("SW_CAMPUS_5"),
     "contradictory": gen_contradictory("SW_CAMPUS_10"),
+    "ambiguous_loss": gen_ambiguous_loss("SW_CAMPUS_1"),
 }
 
 # Documents the intended diagnosis for human review / a future eval harness.
@@ -271,6 +304,14 @@ GROUND_TRUTH: dict[str, dict] = {
               "expected_status": "insufficient_evidence"},
     "contradictory": {"root_cause": None, "affected_devices": ["SW_CAMPUS_10"],
                        "expected_status": "insufficient_evidence"},
+    "ambiguous_loss": {
+        "root_cause": None, "affected_devices": ["SW_CAMPUS_1"],
+        "expected_status": "insufficient_evidence",
+        # Genuinely tied between link_congestion and interface_fault without a
+        # check; --checks scenarios/checks/ambiguous_loss_A resolves it to Link
+        # congestion, --checks scenarios/checks/ambiguous_loss_B resolves it to
+        # Interface or cabling fault on a single link. See tests/test_milestone6.py.
+    },
 }
 
 
@@ -284,11 +325,14 @@ def main() -> None:
                 json.dumps(b_records, indent=2), encoding="utf-8")
 
     n_checks = 0
-    for scenario, by_target in CHECKS.items():
-        scenario_dir = CHECKS_DIR / scenario
-        scenario_dir.mkdir(parents=True, exist_ok=True)
-        for (device, metric), rec in by_target.items():
-            (scenario_dir / f"{device}__{metric}.json").write_text(
+    for checks_dir_name, by_check in CHECKS.items():
+        checks_dir = CHECKS_DIR / checks_dir_name
+        checks_dir.mkdir(parents=True, exist_ok=True)
+        for old_file in checks_dir.glob("*.json"):  # drop stale filenames from a prior naming scheme
+            if old_file.stem not in by_check:
+                old_file.unlink()
+        for check_name, rec in by_check.items():
+            (checks_dir / f"{check_name}.json").write_text(
                 json.dumps(rec, indent=2), encoding="utf-8")
             n_checks += 1
 

@@ -85,5 +85,12 @@
       "SW_CAMPUS_10"
     ],
     "expected_status": "insufficient_evidence"
+  },
+  "ambiguous_loss": {
+    "root_cause": null,
+    "affected_devices": [
+      "SW_CAMPUS_1"
+    ],
+    "expected_status": "insufficient_evidence"
   }
 }
