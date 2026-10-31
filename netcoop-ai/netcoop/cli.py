@@ -73,7 +73,7 @@ def _print_message_flow(log_path: Path) -> None:
 
 def run_command(args: argparse.Namespace) -> int:
     topology = load_topology(args.topology) if args.topology else None
-    orchestrator = Orchestrator(topology=topology)
+    orchestrator = Orchestrator(topology=topology, checks_dir=args.checks)
     report = orchestrator.run(args.file, incident_id=args.incident_id)
     report_dict = report.model_dump(mode="json")
 
@@ -100,6 +100,7 @@ def main(argv: list[str] | None = None) -> int:
     run_parser.add_argument("file", help="Path to a Schema A or Schema B JSON input file")
     run_parser.add_argument("--incident-id", default=None)
     run_parser.add_argument("--topology", default=None, help="Path to a topology.json file")
+    run_parser.add_argument("--checks", default=None, help="Directory of targeted diagnostic check files")
     run_parser.set_defaults(func=run_command)
 
     args = parser.parse_args(argv)

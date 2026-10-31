@@ -1,0 +1,8 @@
+{
+  "timestamp": "2026-10-31T19:00:23Z",
+  "device_id": "SW_CAMPUS_5",
+  "metrics": {
+    "interface_errors": 85
+  },
+  "status": "Warning"
+}

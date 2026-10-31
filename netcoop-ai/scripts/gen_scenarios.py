@@ -9,9 +9,15 @@ same values every time; only the timestamps shift, anchored to wall-clock
 "now" at generation time, the way real telemetry timestamps would.
 
 Writes:
-  scenarios/inputs/<name>.json          (Schema A, one list of records)
-  scenarios/inputs/schema_b_<name>.json (Schema B equivalent, for 3 scenarios)
-  scenarios/ground_truth.json           ({scenario: {root_cause, affected_devices, expected_status}})
+  scenarios/inputs/<name>.json           (Schema A, one list of records)
+  scenarios/inputs/schema_b_<name>.json  (Schema B equivalent, for 3 scenarios)
+  scenarios/checks/<name>/<device>__<metric>.json  (targeted check files, for 2 scenarios)
+  scenarios/ground_truth.json            ({scenario: {root_cause, affected_devices, expected_status}})
+
+Check files are generated here too (not hand-authored) so their timestamps
+stay anchored the same way as the scenario files they belong to -- a
+hardcoded check timestamp would eventually look older than the scenario's
+own "fresh" samples once this script is re-run on a later date.
 
 Agents must never read ground_truth.json -- it exists for human review and a
 future eval harness, not for the diagnosis pipeline.
@@ -28,6 +34,7 @@ random.seed(SEED)
 
 ROOT = Path(__file__).resolve().parent.parent
 INPUTS_DIR = ROOT / "scenarios" / "inputs"
+CHECKS_DIR = ROOT / "scenarios" / "checks"
 GROUND_TRUTH_PATH = ROOT / "scenarios" / "ground_truth.json"
 
 NOW = datetime.now(timezone.utc).replace(microsecond=0)
@@ -183,6 +190,36 @@ def gen_simultaneous() -> list[dict]:
     return gen_interface_fault("SW_CAMPUS_8") + gen_weak_wifi("AP_HOSTEL_2")
 
 
+# ---- targeted check files ---------------------------------------------------
+# {scenario: {(device, metric): record}} -- orchestrator looks these up as
+# <checks_dir>/<device>__<metric>.json when the top two hypotheses are too
+# close to call. Timestamped after the scenario's own samples so they read as
+# the freshest available data once applied.
+
+CHECKS: dict[str, dict[tuple[str, str], dict]] = {
+    "stale": {
+        # Confirms the one reading the "stale" scenario deliberately excluded:
+        # re-polling interface_errors should resolve the ambiguity in favor of
+        # interface_fault.
+        ("SW_CAMPUS_5", "interface_errors"): record(
+            "SW_CAMPUS_5", NOW + timedelta(minutes=1), {"interface_errors": 85}, "Warning",
+        ),
+    },
+    "insufficient": {
+        # A full re-poll of the device that reported almost nothing -- a check
+        # naturally returns everything currently available, not just the one
+        # metric that was missing.
+        ("SW_CAMPUS_9", "link_utilization"): record("SW_CAMPUS_9", NOW + timedelta(minutes=1), {
+            "cpu_utilization_pct": jitter(24, 4), "link_utilization_pct": jitter(28, 5),
+            "packet_loss_pct": 0.0, "latency_ms": jitter(13, 3), "queue_drops": random.randint(0, 3),
+        }, "Healthy"),
+    },
+    # Deliberately no check for "contradictory" or the M3 latency_spike sample:
+    # CLAUDE.md is explicit that util 60-85 with few drops proves no cause, and
+    # checks must never be used to force a conclusion that isn't there.
+}
+
+
 # ---- assembly ---------------------------------------------------------------
 
 SCENARIOS: dict[str, list[dict]] = {
@@ -223,8 +260,9 @@ GROUND_TRUTH: dict[str, dict] = {
         "affected_devices": ["SW_CAMPUS_1", "SW_CAMPUS_2", "SW_CAMPUS_3"], "expected_status": "diagnosed",
     },
     "simultaneous": {
-        "root_cause": "Two independent faults: interface fault on SW_CAMPUS_8, weak wireless signal on "
-                       "AP_HOSTEL_2 (current reporting only surfaces the stronger of the two; see limitations)",
+        "root_cause": "Two independent faults in non-overlapping topology scopes: primary diagnosis "
+                       "Weak wireless signal (AP_HOSTEL_2); additional_diagnoses carries Interface or "
+                       "cabling fault on a single link (SW_CAMPUS_8)",
         "affected_devices": ["SW_CAMPUS_8", "AP_HOSTEL_2"], "expected_status": "diagnosed",
     },
     "insufficient": {"root_cause": None, "affected_devices": ["SW_CAMPUS_9"],
@@ -245,9 +283,19 @@ def main() -> None:
             (INPUTS_DIR / f"schema_b_{name}.json").write_text(
                 json.dumps(b_records, indent=2), encoding="utf-8")
 
+    n_checks = 0
+    for scenario, by_target in CHECKS.items():
+        scenario_dir = CHECKS_DIR / scenario
+        scenario_dir.mkdir(parents=True, exist_ok=True)
+        for (device, metric), rec in by_target.items():
+            (scenario_dir / f"{device}__{metric}.json").write_text(
+                json.dumps(rec, indent=2), encoding="utf-8")
+            n_checks += 1
+
     GROUND_TRUTH_PATH.write_text(json.dumps(GROUND_TRUTH, indent=2), encoding="utf-8")
     print(f"Wrote {len(SCENARIOS)} scenarios to {INPUTS_DIR}")
     print(f"Wrote {len(SCHEMA_B_SCENARIOS)} Schema B variants")
+    print(f"Wrote {n_checks} check files to {CHECKS_DIR}")
     print(f"Wrote {GROUND_TRUTH_PATH}")
 
 

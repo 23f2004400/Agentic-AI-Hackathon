@@ -1,14 +1,15 @@
 """Coordinates a single incident end-to-end: ingest -> dispatch per-device
-analysis tasks -> validate each reply -> correlate -> report. Every Envelope
-exchanged is appended to logs/<incident_id>.jsonl so the run is reproducible
-and auditable.
+analysis tasks -> validate each reply -> correlate -> (optionally) request a
+targeted check and re-correlate -> report. Every Envelope exchanged is
+appended to logs/<incident_id>.jsonl so the run is reproducible and
+auditable.
 """
 from __future__ import annotations
 
 from pathlib import Path
 from uuid import uuid4
 
-from . import ingest
+from . import checks, ingest
 from .agents.base import Agent
 from .agents.connectivity import ConnectivityAgent
 from .agents.correlation import CorrelationAgent
@@ -18,19 +19,37 @@ from .agents.reporting import ReportingAgent
 from .evidence import EvidenceStore
 from .protocol import Envelope, Finding, MsgType
 from .report import Report
+from .rules import load_rules
 from .topology import Topology
 
 LOGS_DIR = Path(__file__).resolve().parent.parent / "logs"
+MAX_CHECKS = 2
+MARGIN_CONFIDENT_ENOUGH = 0.2  # stop requesting checks once margin reaches this
+
+RULES = load_rules()
+HYPOTHESES = RULES.get("hypotheses", {})
+
+
+def _check_target(top: dict) -> str | None:
+    """The single metric a check should fetch next: the highest-priority missing
+    required metric, or that hypothesis's first required metric if none is
+    missing (re-polling to see whether the picture is still ambiguous)."""
+    if top["missing"]:
+        return top["missing"][0]
+    required = HYPOTHESES.get(top["hypothesis"], {}).get("required_metrics", [])
+    return required[0] if required else None
 
 
 class Orchestrator:
     def __init__(self, analysis_agents: list[Agent] | None = None, logs_dir: Path | str = LOGS_DIR,
-                 topology: Topology | None = None):
+                 topology: Topology | None = None, checks_dir: Path | str | None = None):
         self.analysis_agents = analysis_agents if analysis_agents is not None else [
             PerformanceAgent(), InfrastructureAgent(), ConnectivityAgent(topology=topology),
         ]
         self.correlation_agent = CorrelationAgent()
         self.reporting_agent = ReportingAgent()
+        self.topology = topology
+        self.checks_dir = Path(checks_dir) if checks_dir is not None else None
         self.logs_dir = Path(logs_dir)
         self.last_store: EvidenceStore | None = None  # the store from the most recent run(), for introspection
 
@@ -40,19 +59,13 @@ class Orchestrator:
         with open(path, "a", encoding="utf-8") as f:
             f.write(envelope.model_dump_json() + "\n")
 
-    def run(self, path: str | Path, incident_id: str | None = None) -> Report:
-        path = Path(path)
-        incident_id = incident_id or f"INC-{uuid4().hex[:8]}"
-
-        store = EvidenceStore()
-        self.last_store = store
-        rejected = ingest.load_file(store, path)
-        devices = sorted({o.device for o in store.observations.values()})
-
+    def _dispatch_agents(self, incident_id: str, devices: list[str], store: EvidenceStore
+                          ) -> tuple[list[Finding], list[str], list[str], bool]:
+        """Runs every analysis agent once. Returns (findings, evidence_sources, assumptions, had_errors)."""
         agent_findings: list[Finding] = []
         evidence_sources: list[str] = []
-        agent_assumptions: list[str] = []
-        had_agent_errors = False
+        assumptions: list[str] = []
+        had_errors = False
 
         for agent in self.analysis_agents:
             task = Envelope(
@@ -65,7 +78,7 @@ class Orchestrator:
                 if not isinstance(reply, Envelope):
                     raise TypeError(f"{agent.name} returned {type(reply).__name__}, not an Envelope")
             except Exception as e:
-                had_agent_errors = True
+                had_errors = True
                 self._log(incident_id, Envelope(
                     incident_id=incident_id, sender=agent.name, recipient="orchestrator",
                     type=MsgType.ERROR, errors=[f"{agent.name} failed: {e}"],
@@ -73,24 +86,83 @@ class Orchestrator:
                 continue
             self._log(incident_id, reply)
             agent_findings.extend(reply.findings)
-            agent_assumptions.extend(reply.assumptions)
+            assumptions.extend(reply.assumptions)
             evidence_sources.append(agent.name)
 
-        correlation_task = Envelope(
+        return agent_findings, evidence_sources, assumptions, had_errors
+
+    def _correlate(self, incident_id: str, devices: list[str], store: EvidenceStore,
+                    agent_findings: list[Finding]) -> Envelope:
+        task = Envelope(
             incident_id=incident_id, sender="orchestrator", recipient=self.correlation_agent.name,
             type=MsgType.TASK, payload={"devices": devices},
         )
-        self._log(incident_id, correlation_task)
-        correlation_reply = self.correlation_agent.handle(correlation_task, store, agent_findings)
-        self._log(incident_id, correlation_reply)
+        self._log(incident_id, task)
+        reply = self.correlation_agent.handle(task, store, agent_findings)
+        self._log(incident_id, reply)
+        return reply
+
+    def run(self, path: str | Path, incident_id: str | None = None) -> Report:
+        path = Path(path)
+        incident_id = incident_id or f"INC-{uuid4().hex[:8]}"
+
+        store = EvidenceStore()
+        self.last_store = store
+        rejected = ingest.load_file(store, path)
+        devices = sorted({o.device for o in store.observations.values()})
+
+        agent_findings, evidence_sources, agent_assumptions, had_agent_errors = \
+            self._dispatch_agents(incident_id, devices, store)
+        correlation_reply = self._correlate(incident_id, devices, store, agent_findings)
+        agent_assumptions.extend(correlation_reply.assumptions)
         evidence_sources.append(self.correlation_agent.name)
+
+        checks_performed: list[dict] = []
+        for _ in range(MAX_CHECKS):
+            devices_payload = correlation_reply.payload["devices"]
+            if not devices_payload:
+                break
+            best_device = max(devices_payload, key=lambda d: devices_payload[d]["ranking"][0]["score"])
+            top = devices_payload[best_device]["ranking"][0]
+            margin = devices_payload[best_device]["margin"]
+            if margin >= MARGIN_CONFIDENT_ENOUGH:
+                break  # already confident enough; no need to spend a check
+            target_metric = _check_target(top)
+            if target_metric is None or self.checks_dir is None:
+                reason = "no actionable metric to check" if target_metric is None else "no checks directory provided"
+                checks_performed.append({"name": f"{target_metric or '?'} for {best_device}", "result": reason})
+                break
+
+            self._log(incident_id, Envelope(
+                incident_id=incident_id, sender="orchestrator", recipient="checks",
+                type=MsgType.CHECK_REQUEST, payload={"device": best_device, "metric": target_metric},
+            ))
+            applied, result_text = checks.perform(store, self.checks_dir, best_device, target_metric)
+            self._log(incident_id, Envelope(
+                incident_id=incident_id, sender="checks", recipient="orchestrator",
+                type=MsgType.CHECK_RESULT, payload={"applied": applied, "result": result_text},
+            ))
+            checks_performed.append({"name": f"{target_metric} for {best_device}", "result": result_text})
+            if not applied:
+                break  # nothing more to try for this target; stop rather than guess again
+
+            # New data may have changed the picture: re-run analysis and correlation.
+            devices = sorted({o.device for o in store.observations.values()})
+            agent_findings, round_sources, round_assumptions, round_errors = \
+                self._dispatch_agents(incident_id, devices, store)
+            evidence_sources.extend(round_sources)
+            agent_assumptions.extend(round_assumptions)
+            had_agent_errors = had_agent_errors or round_errors
+            correlation_reply = self._correlate(incident_id, devices, store, agent_findings)
+            agent_assumptions.extend(correlation_reply.assumptions)
 
         log_path = str(self.logs_dir / f"{incident_id}.jsonl")
         report = self.reporting_agent.build_report(
             incident_id=incident_id, store=store, correlation_envelope=correlation_reply,
             agent_findings=agent_findings, evidence_sources=evidence_sources,
             rejected_inputs=rejected, log_path=log_path, had_agent_errors=had_agent_errors,
-            agent_assumptions=agent_assumptions,
+            agent_assumptions=agent_assumptions, topology=self.topology,
+            checks_performed=checks_performed,
         )
 
         self._log(incident_id, Envelope(

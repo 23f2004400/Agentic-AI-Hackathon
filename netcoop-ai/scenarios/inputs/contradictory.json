@@ -1,6 +1,6 @@
 [
   {
-    "timestamp": "2026-10-31T17:47:17Z",
+    "timestamp": "2026-10-31T18:49:23Z",
     "device_id": "SW_CAMPUS_10",
     "metrics": {
       "cpu_utilization_pct": 32.6,
@@ -11,7 +11,7 @@
     "status": "Warning"
   },
   {
-    "timestamp": "2026-10-31T17:49:17Z",
+    "timestamp": "2026-10-31T18:51:23Z",
     "device_id": "SW_CAMPUS_10",
     "metrics": {
       "cpu_utilization_pct": 36.84,
@@ -22,7 +22,7 @@
     "status": "Warning"
   },
   {
-    "timestamp": "2026-10-31T17:51:17Z",
+    "timestamp": "2026-10-31T18:53:23Z",
     "device_id": "SW_CAMPUS_10",
     "metrics": {
       "cpu_utilization_pct": 33.15,
@@ -33,7 +33,7 @@
     "status": "Warning"
   },
   {
-    "timestamp": "2026-10-31T17:53:17Z",
+    "timestamp": "2026-10-31T18:55:23Z",
     "device_id": "SW_CAMPUS_10",
     "metrics": {
       "cpu_utilization_pct": 30.25,
@@ -44,7 +44,7 @@
     "status": "Warning"
   },
   {
-    "timestamp": "2026-10-31T17:55:17Z",
+    "timestamp": "2026-10-31T18:57:23Z",
     "device_id": "SW_CAMPUS_10",
     "metrics": {
       "cpu_utilization_pct": 35.34,
@@ -55,7 +55,7 @@
     "status": "Warning"
   },
   {
-    "timestamp": "2026-10-31T17:57:17Z",
+    "timestamp": "2026-10-31T18:59:23Z",
     "device_id": "SW_CAMPUS_10",
     "metrics": {
       "cpu_utilization_pct": 37.47,

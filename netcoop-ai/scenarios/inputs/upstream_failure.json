@@ -1,6 +1,6 @@
 [
   {
-    "timestamp": "2026-10-31T17:47:17Z",
+    "timestamp": "2026-10-31T18:49:23Z",
     "device_id": "SW_CAMPUS_1",
     "metrics": {
       "cpu_utilization_pct": 42.74,
@@ -12,7 +12,7 @@
     "status": "Warning"
   },
   {
-    "timestamp": "2026-10-31T17:49:17Z",
+    "timestamp": "2026-10-31T18:51:23Z",
     "device_id": "SW_CAMPUS_1",
     "metrics": {
       "cpu_utilization_pct": 50.88,
@@ -24,7 +24,7 @@
     "status": "Warning"
   },
   {
-    "timestamp": "2026-10-31T17:51:17Z",
+    "timestamp": "2026-10-31T18:53:23Z",
     "device_id": "SW_CAMPUS_1",
     "metrics": {
       "cpu_utilization_pct": 46.19,
@@ -36,7 +36,7 @@
     "status": "Warning"
   },
   {
-    "timestamp": "2026-10-31T17:53:17Z",
+    "timestamp": "2026-10-31T18:55:23Z",
     "device_id": "SW_CAMPUS_1",
     "metrics": {
       "cpu_utilization_pct": 41.78,
@@ -48,7 +48,7 @@
     "status": "Warning"
   },
   {
-    "timestamp": "2026-10-31T17:55:17Z",
+    "timestamp": "2026-10-31T18:57:23Z",
     "device_id": "SW_CAMPUS_1",
     "metrics": {
       "cpu_utilization_pct": 41.48,
@@ -60,7 +60,7 @@
     "status": "Warning"
   },
   {
-    "timestamp": "2026-10-31T17:57:17Z",
+    "timestamp": "2026-10-31T18:59:23Z",
     "device_id": "SW_CAMPUS_1",
     "metrics": {
       "cpu_utilization_pct": 42.41,
@@ -72,7 +72,7 @@
     "status": "Warning"
   },
   {
-    "timestamp": "2026-10-31T17:47:17Z",
+    "timestamp": "2026-10-31T18:49:23Z",
     "device_id": "SW_CAMPUS_2",
     "metrics": {
       "cpu_utilization_pct": 48.14,
@@ -84,7 +84,7 @@
     "status": "Warning"
   },
   {
-    "timestamp": "2026-10-31T17:49:17Z",
+    "timestamp": "2026-10-31T18:51:23Z",
     "device_id": "SW_CAMPUS_2",
     "metrics": {
       "cpu_utilization_pct": 47.45,
@@ -96,7 +96,7 @@
     "status": "Warning"
   },
   {
-    "timestamp": "2026-10-31T17:51:17Z",
+    "timestamp": "2026-10-31T18:53:23Z",
     "device_id": "SW_CAMPUS_2",
     "metrics": {
       "cpu_utilization_pct": 49.54,
@@ -108,7 +108,7 @@
     "status": "Warning"
   },
   {
-    "timestamp": "2026-10-31T17:53:17Z",
+    "timestamp": "2026-10-31T18:55:23Z",
     "device_id": "SW_CAMPUS_2",
     "metrics": {
       "cpu_utilization_pct": 49.52,
@@ -120,7 +120,7 @@
     "status": "Warning"
   },
   {
-    "timestamp": "2026-10-31T17:55:17Z",
+    "timestamp": "2026-10-31T18:57:23Z",
     "device_id": "SW_CAMPUS_2",
     "metrics": {
       "cpu_utilization_pct": 46.84,
@@ -132,7 +132,7 @@
     "status": "Warning"
   },
   {
-    "timestamp": "2026-10-31T17:57:17Z",
+    "timestamp": "2026-10-31T18:59:23Z",
     "device_id": "SW_CAMPUS_2",
     "metrics": {
       "cpu_utilization_pct": 41.34,
@@ -144,7 +144,7 @@
     "status": "Warning"
   },
   {
-    "timestamp": "2026-10-31T17:47:17Z",
+    "timestamp": "2026-10-31T18:49:23Z",
     "device_id": "SW_CAMPUS_3",
     "metrics": {
       "cpu_utilization_pct": 47.8,
@@ -156,7 +156,7 @@
     "status": "Warning"
   },
   {
-    "timestamp": "2026-10-31T17:49:17Z",
+    "timestamp": "2026-10-31T18:51:23Z",
     "device_id": "SW_CAMPUS_3",
     "metrics": {
       "cpu_utilization_pct": 42.17,
@@ -168,7 +168,7 @@
     "status": "Warning"
   },
   {
-    "timestamp": "2026-10-31T17:51:17Z",
+    "timestamp": "2026-10-31T18:53:23Z",
     "device_id": "SW_CAMPUS_3",
     "metrics": {
       "cpu_utilization_pct": 45.42,
@@ -180,7 +180,7 @@
     "status": "Warning"
   },
   {
-    "timestamp": "2026-10-31T17:53:17Z",
+    "timestamp": "2026-10-31T18:55:23Z",
     "device_id": "SW_CAMPUS_3",
     "metrics": {
       "cpu_utilization_pct": 50.24,
@@ -192,7 +192,7 @@
     "status": "Warning"
   },
   {
-    "timestamp": "2026-10-31T17:55:17Z",
+    "timestamp": "2026-10-31T18:57:23Z",
     "device_id": "SW_CAMPUS_3",
     "metrics": {
       "cpu_utilization_pct": 43.92,
@@ -204,7 +204,7 @@
     "status": "Warning"
   },
   {
-    "timestamp": "2026-10-31T17:57:17Z",
+    "timestamp": "2026-10-31T18:59:23Z",
     "device_id": "SW_CAMPUS_3",
     "metrics": {
       "cpu_utilization_pct": 40.76,

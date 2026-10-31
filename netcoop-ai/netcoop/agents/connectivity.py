@@ -70,11 +70,20 @@ class ConnectivityAgent(Agent):
                         obs.obs_id for d in devices
                         if (obs := latest_observation(store, d, "device_status")) is not None
                     ]
+                    # A shared ancestor with no parent of its own is the root of the whole
+                    # topology -- true of any two devices on campus, so it's not a
+                    # meaningful localization, just "these are somewhere on the same network".
+                    is_trivial_root = self.topology.parent_of(upstream) is None
+                    if is_trivial_root:
+                        detail = (f"{len(devices)} affected devices only share the network core "
+                                  f"({upstream}); no narrower common segment was found, consistent "
+                                  f"with unrelated faults rather than one shared cause")
+                    else:
+                        detail = (f"{len(devices)} affected devices share upstream node {upstream}; "
+                                  f"consider {upstream} itself as a candidate root cause")
                     scope_findings.append(Finding(
                         claim="shared_upstream_scope", device=upstream,
-                        evidence_refs=evidence_refs,
-                        detail=f"{len(devices)} affected devices share upstream node {upstream}; "
-                               f"consider {upstream} itself as a candidate root cause",
+                        evidence_refs=evidence_refs, detail=detail,
                     ))
 
         grounded_scope = [store.ground(f) for f in scope_findings]

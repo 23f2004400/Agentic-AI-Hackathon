@@ -36,6 +36,13 @@ def latest_observation(store: EvidenceStore, device: str, metric: str) -> Observ
     return latest
 
 
+def is_only_stale(store: EvidenceStore, device: str, metric: str) -> bool:
+    """True if (device, metric) has a reading on record, but every one of them is
+    too old to use -- distinct from the metric never having been reported at all."""
+    candidates = [o for o in store.observations.values() if o.device == device and o.metric == metric]
+    return bool(candidates) and latest_observation(store, device, metric) is None
+
+
 class Agent(ABC):
     name: str
     required_metrics: tuple[str, ...] = ()

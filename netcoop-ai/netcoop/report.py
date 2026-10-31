@@ -30,6 +30,20 @@ class HypothesisScore(BaseModel):
     support: list[str] = Field(default_factory=list)
     contradictions: list[str] = Field(default_factory=list)
     missing: list[str] = Field(default_factory=list)
+    stale: list[str] = Field(default_factory=list)       # subset of missing: had data, too old to use
+    next_check: str | None = None
+
+
+class AdditionalDiagnosis(BaseModel):
+    """A second, independent diagnosis for devices in a non-overlapping topology
+    scope from the primary one -- e.g. two unrelated faults in different segments."""
+    model_config = ConfigDict(extra="forbid")
+
+    scope_devices: list[str] = Field(default_factory=list)
+    suspected_root_cause: str | None = None
+    confidence: float
+    supporting_evidence: list[SupportingEvidence] = Field(default_factory=list)
+    confidence_category: Literal["high", "medium", "low"]
 
 
 class CheckPerformed(BaseModel):
@@ -62,6 +76,8 @@ class Report(BaseModel):
     evidence_sources: list[str] = Field(default_factory=list)
     limitations: list[str] = Field(default_factory=list)
     hypotheses: list[HypothesisScore] = Field(default_factory=list)
+    next_check: str | None = None
+    additional_diagnoses: list[AdditionalDiagnosis] = Field(default_factory=list)
     checks_performed: list[CheckPerformed] = Field(default_factory=list)
     rejected_inputs: list[RejectedInput] = Field(default_factory=list)
     message_log: str

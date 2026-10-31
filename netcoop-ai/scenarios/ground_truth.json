@@ -58,7 +58,7 @@
     "expected_status": "diagnosed"
   },
   "simultaneous": {
-    "root_cause": "Two independent faults: interface fault on SW_CAMPUS_8, weak wireless signal on AP_HOSTEL_2 (current reporting only surfaces the stronger of the two; see limitations)",
+    "root_cause": "Two independent faults in non-overlapping topology scopes: primary diagnosis Weak wireless signal (AP_HOSTEL_2); additional_diagnoses carries Interface or cabling fault on a single link (SW_CAMPUS_8)",
     "affected_devices": [
       "SW_CAMPUS_8",
       "AP_HOSTEL_2"
