@@ -43,6 +43,19 @@ def is_only_stale(store: EvidenceStore, device: str, metric: str) -> bool:
     return bool(candidates) and latest_observation(store, device, metric) is None
 
 
+def has_conflicting_latest(store: EvidenceStore, device: str, metric: str) -> bool:
+    """True if two or more observations for (device, metric) share the latest
+    timestamp but disagree on value -- genuinely inconsistent data, not just a
+    reading that changed over time. latest_observation() would pick one of them
+    arbitrarily (first by insertion order); this flags that it did."""
+    candidates = [o for o in store.observations.values() if o.device == device and o.metric == metric]
+    if len(candidates) < 2:
+        return False
+    latest_ts = max(o.timestamp for o in candidates)
+    values_at_latest = {o.value for o in candidates if o.timestamp == latest_ts}
+    return len(values_at_latest) > 1
+
+
 class Agent(ABC):
     name: str
     required_metrics: tuple[str, ...] = ()
@@ -56,13 +69,19 @@ class Agent(ABC):
         devices: list[str] = task.payload.get("devices", [])
         findings: list[Finding] = []
         missing: list[str] = []
+        assumptions: list[str] = []
         for device in devices:
             findings.extend(self.analyze(device, store))
             for metric in self.required_metrics:
                 if latest_observation(store, device, metric) is None:
                     missing.append(f"{device}:{metric}")
+                elif has_conflicting_latest(store, device, metric):
+                    assumptions.append(
+                        f"conflicting readings for {device}:{metric} at the same timestamp; "
+                        f"one was picked arbitrarily"
+                    )
         grounded = [store.ground(f) for f in findings]
         return Envelope(
             incident_id=task.incident_id, sender=self.name, recipient=task.sender,
-            type=MsgType.FINDINGS, findings=grounded, missing=missing,
+            type=MsgType.FINDINGS, findings=grounded, missing=missing, assumptions=assumptions,
         )

@@ -37,8 +37,13 @@ class EvidenceStore:
 
         observed   : cites >=1 stored observation directly
         inferred   : cites only findings that are themselves observed/inferred
-        unsupported: cites nothing resolvable
+        unsupported: cites nothing resolvable, or names a device this store
+                     doesn't recognize at all (even if its evidence_refs resolve)
         """
+        if self.known_devices is not None and f.device is not None and f.device not in self.known_devices:
+            grounded = f.model_copy(update={"grounding": "unsupported"})
+            self.findings[grounded.finding_id] = grounded
+            return grounded
         obs_hits = [r for r in f.evidence_refs if r in self.observations]
         fnd_hits = [r for r in f.evidence_refs
                     if r in self.findings and self.findings[r].grounding != "unsupported"]
