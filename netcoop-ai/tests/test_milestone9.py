@@ -265,6 +265,61 @@ def test_render_hypotheses_never_exceeds_the_configured_console_width(monkeypatc
     assert "Hardware failure" in out
 
 
+# ---- before-check snapshot and post-summary report details -----------------
+
+def test_ambiguous_loss_check_shows_first_pass_below_threshold_and_different_final_ranking(
+        monkeypatch, logs_dir):
+    buf = _captured_console(monkeypatch, width=100)
+    topo = load_topology(TOPOLOGY_PATH)
+    checks_dir = ROOT / "scenarios" / "checks" / "ambiguous_loss_A"
+    o = Orchestrator(topology=topo, logs_dir=logs_dir, checks_dir=checks_dir)
+    report = o.run(SCENARIOS / "ambiguous_loss.json", incident_id="M9-firstpass")
+    report_dict = report.model_dump(mode="json")
+
+    before = report.checks_performed[0].before
+    assert before is not None
+    assert before.margin < before.margin_threshold
+
+    render.render_full_report(report_dict, Path("fake.json"), Path("fake.md"))
+    out = _strip_ansi(buf.getvalue())
+    assert "First pass (before check)" in out
+    assert before.top_label in out
+    assert f"margin {before.margin:.3f} < threshold {before.margin_threshold}" in out
+    assert "Hypotheses (After check)" in out
+
+    # the final ranking actually changed from the before-check snapshot
+    assert report.hypotheses[0].hypothesis != before.top_hypothesis \
+        or report.hypotheses[0].score != before.top_score
+    for line in out.splitlines():
+        assert len(line) <= 100, f"line exceeds 100 columns: {line!r}"
+
+
+def test_broken_unknown_field_prints_its_rejection_reason(monkeypatch, logs_dir):
+    buf = _captured_console(monkeypatch, width=100)
+    o = Orchestrator(logs_dir=logs_dir)
+    report = o.run(SCENARIOS / "broken_unknown_field.json", incident_id="M9-rejected")
+    assert report.rejected_inputs
+    render.render_report_details(report.model_dump(mode="json"))
+    out = _strip_ansi(buf.getvalue())
+    assert report.rejected_inputs[0].reason in out
+    assert report.rejected_inputs[0].raw_ref in out
+
+
+def test_schema_a_hardware_failure_prints_alternative_cause_and_recommended_action(
+        monkeypatch, logs_dir):
+    buf = _captured_console(monkeypatch, width=100)
+    o = Orchestrator(logs_dir=logs_dir)
+    report = o.run(SCENARIOS / "schema_a_hardware_failure.json", incident_id="M9-altcause")
+    assert report.alternative_causes
+    assert report.recommended_actions
+    render.render_report_details(report.model_dump(mode="json"))
+    out = _strip_ansi(buf.getvalue())
+    assert "Alternative causes" in out
+    assert report.alternative_causes[0] in out
+    assert "Recommended actions" in out
+    assert report.recommended_actions[0] in out
+
+
 # ---- the actual behavior this audit was asked to verify --------------------
 
 def test_ambiguous_loss_variants_still_produce_different_top_causes():

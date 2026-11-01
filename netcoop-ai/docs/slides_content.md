@@ -14,7 +14,7 @@ Evidence-first cooperative diagnosis: five agents exchange self-grounding eviden
 
 ## 3. Architecture
 
-Components (as in code): `ingest.py` (schema detect) → `EvidenceStore` (`evidence.py`) → **Performance, Infrastructure, Connectivity** agents (`agents/`) → `Orchestrator` → **Correlation** agent (`rules.yaml` scoring) → targeted `checks.py` loop → **Reporting** agent (`report.py`) → `logs/<incident_id>.jsonl`.
+Components (as in code): `ingest.py` (schema detect) → `EvidenceStore` (`evidence.py`) → **Performance, Infrastructure, Connectivity** agents (`agents/`) → `Orchestrator` → **Correlation** agent (`rules.yaml` scoring) → targeted `checks.py` loop → **Reporting** agent (`agents/reporting.py`, using the `Report` model in `report.py`) → `logs/<incident_id>.jsonl`.
 
 ## 4. Message format
 
@@ -59,5 +59,5 @@ A record with a missing unit, unrecognized field, naive timestamp, unsupported s
 
 - **Slide 3 "targeted checks loop"**: confirmed in `README.md`'s orchestration-flow pseudocode and `checks.py`'s existence, but I did not execute the loop myself — its runtime behavior is taken from the README description, not from running a check live.
 - **Slide 5 "Demo" wording**: `cli.py` confirms a `demo` subcommand and a fixed walkthrough exist; I did not run `python -m netcoop demo` myself in this session to confirm its on-screen output matches the description.
-- **Slide 7 "Mean latency (s): 0.0071 / 0.0001"** (omitted from the slide for brevity/word limit) and the **9 diagnosed / 4 abstention scenario split**: both verbatim in `eval/results/results.md`, but I did not re-run `eval/run_eval.py` myself — the numbers are copied from the committed results file, not freshly regenerated.
+- **Slide 7 "Mean latency (s): 0.0092 / 0.0001"** (omitted from the slide for brevity/word limit) and the **9 diagnosed / 4 abstention scenario split**: both verbatim in the current `eval/results/results.md`, but I did not re-run `eval/run_eval.py` myself — the numbers are copied from the committed results file, not freshly regenerated. Note: `README.md`'s own "Evaluation results" section quotes an older `0.0071` for this metric — it wasn't regenerated after the latest `eval/run_eval.py` run, so it disagrees with the current `results.md`. This slide follows `results.md` per your instruction to copy results numbers from that file.
 - All other slide content (problem, architecture component names, Envelope fields, bad-data handling, limitations) is copied or directly derived from current file contents I read in this session: `README.md`, `netcoop/protocol.py`, `logs/INC-581b38d1.jsonl`, `eval/results/results.md`, `netcoop/cli.py`.

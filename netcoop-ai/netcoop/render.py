@@ -88,13 +88,31 @@ def render_message_timeline(log_path: Path) -> None:
     console.print(table)
 
 
-def render_hypotheses(report_dict: dict) -> None:
+def render_first_pass(report_dict: dict) -> None:
+    """The ranking snapshot recorded at the moment the first targeted check
+    was requested -- shown before the (possibly different) final ranking so
+    a viewer can see what changed and why a check was requested at all."""
+    checks_performed = report_dict.get("checks_performed", [])
+    before = checks_performed[0].get("before") if checks_performed else None
+    if not before:
+        return
+    table = Table(title="First pass (before check)", expand=True)
+    table.add_column("Hypothesis", min_width=16, no_wrap=True)
+    table.add_column("Score", justify="right", no_wrap=True)
+    table.add_row(before["top_label"], f"{before['top_score']:.2f}")
+    if before.get("second_label") is not None:
+        table.add_row(before["second_label"], f"{before['second_score']:.2f}")
+    console.print(table)
+    console.print(before["reason"])
+
+
+def render_hypotheses(report_dict: dict, title: str = "Hypotheses") -> None:
     # One bounded "Evidence" column rather than three narrow ones: splitting
     # support/contradictions/missing into separate columns leaves each so
     # narrow at a normal terminal width that long signal names (e.g.
     # "interface_errors_present") wrap one or two characters per line. Full,
     # untruncated lists are always in the JSON/Markdown report regardless.
-    table = Table(title="Hypotheses", expand=True)
+    table = Table(title=title, expand=True)
     table.add_column("Hypothesis", min_width=16, no_wrap=True)
     table.add_column("Score", justify="right", no_wrap=True)
     table.add_column("Coverage", justify="right", no_wrap=True)
@@ -150,12 +168,68 @@ def render_report_summary(report_dict: dict, json_path: Path, md_path: Path) -> 
     console.print(Panel(body, title="Diagnostic Report", border_style=style))
 
 
+def render_rejected_inputs(report_dict: dict) -> None:
+    rejected = report_dict.get("rejected_inputs", [])
+    if not rejected:
+        console.print("[dim]Rejected inputs: none[/]")
+        return
+    table = Table(title="Rejected Inputs", expand=True)
+    table.add_column("Raw ref", overflow="fold", max_width=40)
+    table.add_column("Reason", overflow="fold")
+    for r in rejected:
+        table.add_row(r["raw_ref"], r["reason"])
+    console.print(table)
+
+
+def render_supporting_evidence(report_dict: dict) -> None:
+    evidence = report_dict.get("supporting_evidence", [])[:5]
+    if not evidence:
+        console.print("[dim]Supporting evidence: none[/]")
+        return
+    table = Table(title="Supporting Evidence (top 5)", expand=True)
+    table.add_column("Metric", no_wrap=True)
+    table.add_column("Value", justify="right", no_wrap=True)
+    table.add_column("Interpretation", overflow="fold")
+    table.add_column("Raw ref", overflow="fold", max_width=32)
+    for ev in evidence:
+        unit = ev["unit"] or ""
+        table.add_row(ev["metric"], f"{ev['value']}{unit}", ev["interpretation"], ev["raw_ref"])
+    console.print(table)
+
+
+def _render_short_list(title: str, items: list[str]) -> None:
+    if not items:
+        console.print(f"[bold]{title}:[/] [dim]none[/]")
+        return
+    console.print(f"[bold]{title}:[/]")
+    for item in items:
+        console.print(f"  - {item}")
+
+
+def render_report_details(report_dict: dict) -> None:
+    """Printed after the Diagnostic Report panel: rejected inputs, the
+    top supporting evidence, and the short free-text lists from the report."""
+    render_rejected_inputs(report_dict)
+    console.print()
+    render_supporting_evidence(report_dict)
+    console.print()
+    _render_short_list("Alternative causes", report_dict.get("alternative_causes", []))
+    _render_short_list("Recommended actions", report_dict.get("recommended_actions", []))
+    _render_short_list("Limitations", report_dict.get("limitations", []))
+
+
 def render_full_report(report_dict: dict, json_path: Path, md_path: Path) -> None:
     """The full per-incident view used by both `run` and `demo`."""
     render_message_timeline(Path(report_dict["message_log"]))
     console.print()
-    render_hypotheses(report_dict)
+    checks_ran = bool(report_dict.get("checks_performed"))
+    if checks_ran:
+        render_first_pass(report_dict)
+        console.print()
+    render_hypotheses(report_dict, title="Hypotheses (After check)" if checks_ran else "Hypotheses")
     console.print()
     render_checks(report_dict)
     console.print()
     render_report_summary(report_dict, json_path, md_path)
+    console.print()
+    render_report_details(report_dict)

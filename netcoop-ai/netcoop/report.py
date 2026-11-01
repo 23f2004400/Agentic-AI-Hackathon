@@ -46,12 +46,30 @@ class AdditionalDiagnosis(BaseModel):
     confidence_category: Literal["high", "medium", "low"]
 
 
+class CheckSnapshot(BaseModel):
+    """The hypothesis ranking at the moment a targeted check was requested --
+    recorded for display only; it does not feed back into scoring."""
+    model_config = ConfigDict(extra="forbid")
+
+    device: str
+    top_hypothesis: str
+    top_label: str
+    top_score: float
+    second_hypothesis: str | None = None
+    second_label: str | None = None
+    second_score: float | None = None
+    margin: float
+    margin_threshold: float
+    reason: str
+
+
 class CheckPerformed(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     name: str
     status: Literal["applied", "check_failed"]
     result: str
+    before: CheckSnapshot | None = None
 
 
 class RejectedInput(BaseModel):

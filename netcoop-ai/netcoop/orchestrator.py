@@ -188,15 +188,36 @@ class Orchestrator:
             top_hyp = ranking[0]["hypothesis"]
             second_hyp = ranking[1]["hypothesis"] if len(ranking) > 1 else None
             check_name = checks.discriminating_check(top_hyp, second_hyp) if second_hyp else None
+
+            # Snapshot of the ranking at the moment this check was requested --
+            # recording only, for display in the report; it does not change
+            # which check is chosen or how scoring works below.
+            snapshot_base = {
+                "device": best_device,
+                "top_hypothesis": top_hyp,
+                "top_label": ranking[0]["label"],
+                "top_score": ranking[0]["score"],
+                "second_hypothesis": second_hyp,
+                "second_label": ranking[1]["label"] if len(ranking) > 1 else None,
+                "second_score": ranking[1]["score"] if len(ranking) > 1 else None,
+                "margin": margin,
+                "margin_threshold": MARGIN_CONFIDENT_ENOUGH,
+            }
+            margin_prefix = f"margin {margin:.3f} < threshold {MARGIN_CONFIDENT_ENOUGH}"
+
             if check_name is None:
                 checks_performed.append({
                     "name": f"(none declared for {top_hyp} vs {second_hyp})", "status": "check_failed",
                     "result": "no discriminating check declared in rules.yaml for this hypothesis pair",
+                    "before": {**snapshot_base, "reason": (
+                        f"{margin_prefix} -> no discriminating check declared for {top_hyp} vs {second_hyp}"
+                    )},
                 })
                 break
             if self.checks_dir is None:
                 checks_performed.append({
                     "name": check_name, "status": "check_failed", "result": "no checks directory provided",
+                    "before": {**snapshot_base, "reason": f"{margin_prefix} -> requested {check_name}"},
                 })
                 break
 
@@ -210,7 +231,10 @@ class Orchestrator:
                 incident_id=incident_id, sender="checks", recipient="orchestrator",
                 type=MsgType.CHECK_RESULT, payload={"status": outcome.status, "result": outcome.result},
             ))
-            checks_performed.append({"name": outcome.name, "status": outcome.status, "result": outcome.result})
+            checks_performed.append({
+                "name": outcome.name, "status": outcome.status, "result": outcome.result,
+                "before": {**snapshot_base, "reason": f"{margin_prefix} -> requested {outcome.name}"},
+            })
             if outcome.status != "applied":
                 break  # nothing more to try for this check; stop rather than guess again
 
