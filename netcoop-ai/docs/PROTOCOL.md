@@ -172,6 +172,17 @@ No code changes are required for a vendor whose data fits the "device + timestam
 2. That's it. `netcoop/ingest.py::detect_and_parse()` scans every `*.yaml` in `netcoop/mappings/` via `adapters.mapped.find_mapping_for_schema()`, matching on the record's own `schema` tag name — a new mapping file is picked up automatically, nothing to register.
 3. Add a sample input file and, if it's exercising new ground, a scenario entry — see `scripts/gen_scenarios.py`'s `to_schema_b()` for a worked example of converting a Schema A record into another flat vendor shape.
 
+**Worked third-vendor example**: `demo/vendor_c.yaml` is exactly this —
+a mapping for `vendorC/1.0` (flat, `device_name`, `ts_iso` ISO-8601,
+microsecond latency/jitter, 0–1 ratios for loss/utilization/CPU, bare counts
+for queue length and errors), paired with `demo/vendor_c_congestion.json`.
+It is deliberately kept outside `netcoop/mappings/` so the live demo can show
+the before/after: the file is rejected with `unknown schema 'vendorC/1.0'`
+until the YAML is copied into `netcoop/mappings/`, at which point it
+diagnoses identically to `scenarios/inputs/congestion.json` with zero code
+changes (`tests/test_demo_vendor_c.py`; walkthrough in the root README's
+[Demos](../../README.md#demos) section).
+
 If the new vendor's shape doesn't fit that pattern at all (nested records, a
 genuinely different structure), write a new adapter module alongside
 `adapters/schema_a.py`/`adapters/mapped.py` that produces `Observation`s the

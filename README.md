@@ -149,6 +149,41 @@ unit/schema/topology/ingestion/orchestration failure mode has a specific,
 catalogued message — see PROTOCOL.md section 10 for the full table — rather
 than a generic "something went wrong."
 
+## Guardrails
+
+| Guardrail | What it does | Proven by |
+|---|---|---|
+| Input validation | Malformed JSON, unrecognized fields, naive timestamps, ambiguous/missing units, and unsupported schema versions are each rejected with a specific reason; the rest of the file still loads | `tests/test_milestone2.py::test_broken_scenario_files_produce_expected_reason` |
+| Message validation | Every `Envelope` is validated at construction (`extra="forbid"`, `schema_version` in `SUPPORTED_VERSIONS`); a reply reusing a `msg_id` already seen this incident is rejected as malformed | `tests/test_milestone7.py::test_duplicate_envelope_msg_id_is_rejected_not_crashed` |
+| Evidence grounding | `EvidenceStore.ground()` recomputes a Finding's grounding from what it actually cites, ignoring what the sender claims; a repeated rumor doesn't become evidence | `tests/test_milestone1.py::test_repeated_claim_does_not_become_evidence` |
+| Abstention | Status becomes `insufficient_evidence` when coverage/score/margin are too low, instead of naming a cause the evidence doesn't support | `tests/test_milestone5.py::test_insufficient_scenario_abstains_from_naming_a_cause` |
+| Bounded checks | At most 2 targeted diagnostic checks are requested per incident, stopping early once margin ≥ 0.2 | `tests/test_milestone6.py::test_never_more_than_two_checks` |
+| Fault isolation | An agent exception, timeout, or malformed reply is caught and logged as an `error` Envelope; the run continues with whatever the other agents produced | `tests/test_milestone7.py::test_agent_timeout_does_not_crash` |
+| Audit trail | Every Envelope is appended to `logs/<incident_id>.jsonl`; every reported number traces back to a raw record via `EvidenceStore.trace()`'s `raw_ref` | `tests/test_milestone5.py::test_check_request_and_result_envelopes_are_logged`, `tests/test_milestone3.py::test_orchestrator_supporting_evidence_obs_id_traces_to_raw_ref` |
+
+## Demos
+
+- **Grounding guardrail, standalone**: `python scripts/demo_grounding.py` runs
+  the real orchestrator twice — once clean, once with a rogue agent injecting
+  an unsupported root-cause claim and an echo agent repeating it — and prints
+  both injected findings grading as `unsupported` with the ranking unchanged
+  (`tests/test_demo_grounding.py`).
+- **Live third-vendor extension** (`demo/vendor_c.yaml`, a `vendorC/1.0`
+  mapping not yet installed into `netcoop/mappings/`):
+  1. `python -m netcoop run demo/vendor_c_congestion.json` → rejected,
+     `unknown schema 'vendorC/1.0'` (no mapping installed yet).
+  2. Copy `demo/vendor_c.yaml` into `netcoop/mappings/vendor_c.yaml` — the
+     only change required, no code edit.
+  3. Re-run the same command → now diagnoses `Link congestion`, identical to
+     `scenarios/inputs/congestion.json` (`tests/test_demo_vendor_c.py`).
+- **Live generator record**: `python scripts/official_generator.py normal --out live/live.json`
+  runs the official notebook's unmodified `generate_telemetry()`, then
+  `python -m netcoop run live/live.json` diagnoses it like any other input.
+- **Local UI**: `streamlit run app.py` — a thin, non-simulated display layer
+  over the real `Orchestrator`; streams every Envelope as it's produced for a
+  chosen scenario, a freshly generated record, or pasted JSON (pure helpers
+  covered by `tests/test_milestone10.py`).
+
 ## Setup
 
 ```powershell
@@ -156,7 +191,7 @@ cd netcoop-ai
 python -m venv .venv
 .venv\Scripts\Activate.ps1      # .venv\Scripts\activate.bat for cmd.exe, .venv/bin/activate for bash
 pip install -r requirements.txt
-pytest -q                       # 161 tests
+pytest -q                       # 179 tests
 ```
 
 (All further commands assume you're still inside `netcoop-ai/`.)
@@ -193,9 +228,14 @@ Two input formats are accepted and produce identical canonical evidence
   each field's name suffix (`_pct`, `_ms`, `_mbps`, `_dbm`).
 - **Schema B** — a deliberately different vendor format (flat, `hostname`,
   seconds, 0–1 ratios, epoch time), translated by a declarative YAML mapping
-  (`netcoop/mappings/vendor_b.yaml`), not hand-written if-statements. Adding
-  a new vendor format means adding a mapping file — see PROTOCOL.md section
-  4 for the field reference and step-by-step guide.
+  (`netcoop/mappings/vendor_b.yaml`), not hand-written if-statements.
+
+### Adding a new vendor format
+
+One YAML mapping file in `netcoop/mappings/` — no code change. See
+PROTOCOL.md section 4 for the field reference and step-by-step guide, and
+`demo/vendor_c.yaml` for a worked third-vendor example (not yet installed —
+see [Demos](#demos) above).
 
 A record with a missing unit, an unrecognized field, a naive timestamp, an
 unsupported schema version, or malformed JSON is rejected with a specific
@@ -255,8 +295,12 @@ Plus 3 Schema B variants and the check fixtures for `stale`/`insufficient`/`ambi
 > | Correct abstention rate | 100% | 0% |
 > | False confident diagnoses | 0/4 (0%) | 4/4 (100%) |
 > | Average checks used | 0.13 | 0.00 |
-> | Mean latency (s) | 0.0118 | 0.0002 |
+> | Mean latency (s) | 0.0112 | 0.0002 |
 > | Overall status accuracy | 100% | 73% |
+>
+> 15 evaluation runs on synthetic data; the two `ambiguous_loss__checks` rows
+> exercise targeted checks; the baseline has no check mechanism. Confidence
+> is a documented heuristic, not a calibrated probability.
 >
 > Root-cause and affected-device accuracy are computed over the 11
 > scenario(s) ground truth expects to be diagnosed. Correct abstention rate
@@ -367,7 +411,7 @@ netcoop/
 scenarios/   inputs/  checks/  topology.json  ground_truth.json
 scripts/gen_scenarios.py  gen_protocol_tables.py
 eval/        run_eval.py  baseline.py  results/
-tests/       161 tests across 10 milestones
+tests/       179 tests across 11 milestones, plus demo coverage
 docs/        PROTOCOL.md  problem_statement.pdf
 logs/        reports/     (generated; gitignored)
 ```
