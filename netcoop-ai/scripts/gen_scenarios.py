@@ -4,9 +4,9 @@
 Extends the official generator format (docs/Mock_data_builder_netScoopAI.ipynb)
 with explicit multi-sample time series (6 samples per device) and a broader
 set of fault types than the sample generator covers. All metric values are
-drawn from a seeded random generator, so re-running this script produces the
-same values every time; only the timestamps shift, anchored to wall-clock
-"now" at generation time, the way real telemetry timestamps would.
+drawn from a seeded random generator, and all timestamps are anchored to a
+fixed base timestamp (not wall-clock "now"), so re-running this script
+produces byte-identical output every time.
 
 Writes:
   scenarios/inputs/<name>.json           (Schema A, one list of records)
@@ -15,9 +15,8 @@ Writes:
   scenarios/ground_truth.json            ({scenario: {root_cause, affected_devices, expected_status}})
 
 Check files are generated here too (not hand-authored) so their timestamps
-stay anchored the same way as the scenario files they belong to -- a
-hardcoded check timestamp would eventually look older than the scenario's
-own "fresh" samples once this script is re-run on a later date.
+stay anchored the same way as the scenario files they belong to, using the
+same fixed base timestamp plus the existing relative offsets.
 
 Agents must never read ground_truth.json -- it exists for human review and a
 future eval harness, not for the diagnosis pipeline.
@@ -37,7 +36,8 @@ INPUTS_DIR = ROOT / "scenarios" / "inputs"
 CHECKS_DIR = ROOT / "scenarios" / "checks"
 GROUND_TRUTH_PATH = ROOT / "scenarios" / "ground_truth.json"
 
-NOW = datetime.now(timezone.utc).replace(microsecond=0)
+# Fixed base timestamp (not wall-clock) so regenerating scenarios is byte-identical.
+NOW = datetime(2026, 10, 31, 10, 0, 0, tzinfo=timezone.utc)
 SAMPLE_INTERVAL = timedelta(minutes=2)
 
 SCHEMA_B_SCENARIOS = {"normal", "congestion", "cpu_overload"}

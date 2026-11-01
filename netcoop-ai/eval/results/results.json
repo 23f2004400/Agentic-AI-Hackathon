@@ -21,7 +21,7 @@
         "cause_correct": true,
         "devices_correct": true,
         "checks_used": 0,
-        "latency_s": 0.013
+        "latency_s": 0.0436
       },
       "baseline": {
         "status": "diagnosed",
@@ -55,7 +55,7 @@
         "cause_correct": true,
         "devices_correct": true,
         "checks_used": 0,
-        "latency_s": 0.0093
+        "latency_s": 0.0076
       },
       "baseline": {
         "status": "diagnosed",
@@ -67,7 +67,7 @@
         "cause_correct": true,
         "devices_correct": true,
         "checks_used": 0,
-        "latency_s": 0.0002
+        "latency_s": 0.0003
       }
     },
     {
@@ -89,7 +89,7 @@
         "cause_correct": true,
         "devices_correct": true,
         "checks_used": 0,
-        "latency_s": 0.0081
+        "latency_s": 0.0093
       },
       "baseline": {
         "status": "diagnosed",
@@ -123,7 +123,7 @@
         "cause_correct": true,
         "devices_correct": true,
         "checks_used": 0,
-        "latency_s": 0.0089
+        "latency_s": 0.009
       },
       "baseline": {
         "status": "diagnosed",
@@ -135,7 +135,7 @@
         "cause_correct": true,
         "devices_correct": true,
         "checks_used": 0,
-        "latency_s": 0.0002
+        "latency_s": 0.0001
       }
     },
     {
@@ -157,7 +157,7 @@
         "cause_correct": true,
         "devices_correct": true,
         "checks_used": 0,
-        "latency_s": 0.0073
+        "latency_s": 0.0045
       },
       "baseline": {
         "status": "diagnosed",
@@ -169,7 +169,7 @@
         "cause_correct": true,
         "devices_correct": true,
         "checks_used": 0,
-        "latency_s": 0.0002
+        "latency_s": 0.0001
       }
     },
     {
@@ -191,7 +191,7 @@
         "cause_correct": true,
         "devices_correct": true,
         "checks_used": 0,
-        "latency_s": 0.0068
+        "latency_s": 0.004
       },
       "baseline": {
         "status": "diagnosed",
@@ -203,7 +203,7 @@
         "cause_correct": true,
         "devices_correct": true,
         "checks_used": 0,
-        "latency_s": 0.0002
+        "latency_s": 0.0001
       }
     },
     {
@@ -225,7 +225,7 @@
         "cause_correct": true,
         "devices_correct": true,
         "checks_used": 0,
-        "latency_s": 0.0063
+        "latency_s": 0.0081
       },
       "baseline": {
         "status": "diagnosed",
@@ -237,7 +237,7 @@
         "cause_correct": true,
         "devices_correct": true,
         "checks_used": 0,
-        "latency_s": 0.0002
+        "latency_s": 0.0001
       }
     },
     {
@@ -261,7 +261,7 @@
         "cause_correct": true,
         "devices_correct": true,
         "checks_used": 0,
-        "latency_s": 0.0107
+        "latency_s": 0.0073
       },
       "baseline": {
         "status": "diagnosed",
@@ -273,7 +273,7 @@
         "cause_correct": true,
         "devices_correct": true,
         "checks_used": 0,
-        "latency_s": 0.0002
+        "latency_s": 0.0001
       }
     },
     {
@@ -296,7 +296,7 @@
         "cause_correct": true,
         "devices_correct": true,
         "checks_used": 0,
-        "latency_s": 0.0117
+        "latency_s": 0.0082
       },
       "baseline": {
         "status": "diagnosed",
@@ -308,7 +308,7 @@
         "cause_correct": true,
         "devices_correct": true,
         "checks_used": 0,
-        "latency_s": 0.0003
+        "latency_s": 0.0001
       }
     },
     {
@@ -330,7 +330,7 @@
         "cause_correct": true,
         "devices_correct": true,
         "checks_used": 0,
-        "latency_s": 0.0094
+        "latency_s": 0.0038
       },
       "baseline": {
         "status": "diagnosed",
@@ -342,7 +342,7 @@
         "cause_correct": false,
         "devices_correct": true,
         "checks_used": 0,
-        "latency_s": 0.0002
+        "latency_s": 0.0001
       }
     },
     {
@@ -364,7 +364,7 @@
         "cause_correct": true,
         "devices_correct": true,
         "checks_used": 0,
-        "latency_s": 0.0078
+        "latency_s": 0.0043
       },
       "baseline": {
         "status": "diagnosed",
@@ -376,7 +376,7 @@
         "cause_correct": false,
         "devices_correct": true,
         "checks_used": 0,
-        "latency_s": 0.0002
+        "latency_s": 0.0001
       }
     },
     {
@@ -398,7 +398,7 @@
         "cause_correct": true,
         "devices_correct": true,
         "checks_used": 0,
-        "latency_s": 0.0061
+        "latency_s": 0.0059
       },
       "baseline": {
         "status": "diagnosed",
@@ -410,7 +410,7 @@
         "cause_correct": false,
         "devices_correct": true,
         "checks_used": 0,
-        "latency_s": 0.0002
+        "latency_s": 0.0001
       }
     },
     {
@@ -432,7 +432,7 @@
         "cause_correct": true,
         "devices_correct": true,
         "checks_used": 0,
-        "latency_s": 0.0068
+        "latency_s": 0.0046
       },
       "baseline": {
         "status": "diagnosed",
@@ -444,7 +444,7 @@
         "cause_correct": false,
         "devices_correct": true,
         "checks_used": 0,
-        "latency_s": 0.0002
+        "latency_s": 0.0001
       }
     }
   ],
@@ -456,7 +456,7 @@
       "false_confident_diagnoses": 0,
       "false_confident_diagnoses_rate": 0.0,
       "average_checks_used": 0.0,
-      "mean_latency_s": 0.00863,
+      "mean_latency_s": 0.00925,
       "overall_status_accuracy": 1.0,
       "n_scenarios": 13,
       "n_diagnosed_expected": 9,
@@ -469,7 +469,7 @@
       "false_confident_diagnoses": 4,
       "false_confident_diagnoses_rate": 1.0,
       "average_checks_used": 0.0,
-      "mean_latency_s": 0.00021,
+      "mean_latency_s": 0.00013,
       "overall_status_accuracy": 0.6923076923076923,
       "n_scenarios": 13,
       "n_diagnosed_expected": 9,

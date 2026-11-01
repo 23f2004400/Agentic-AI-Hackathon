@@ -2,7 +2,7 @@
   {
     "schema": "vendorB/2.0",
     "hostname": "SW_CAMPUS_6",
-    "ts": 1793483121,
+    "ts": 1793440200,
     "health": "Warning",
     "lat_s": 0.21262,
     "jitter_s": 0.01575,
@@ -14,7 +14,7 @@
   {
     "schema": "vendorB/2.0",
     "hostname": "SW_CAMPUS_6",
-    "ts": 1793483241,
+    "ts": 1793440320,
     "health": "Warning",
     "lat_s": 0.25779,
     "jitter_s": 0.01695,
@@ -26,7 +26,7 @@
   {
     "schema": "vendorB/2.0",
     "hostname": "SW_CAMPUS_6",
-    "ts": 1793483361,
+    "ts": 1793440440,
     "health": "Warning",
     "lat_s": 0.26764,
     "jitter_s": 0.02357,
@@ -38,7 +38,7 @@
   {
     "schema": "vendorB/2.0",
     "hostname": "SW_CAMPUS_6",
-    "ts": 1793483481,
+    "ts": 1793440560,
     "health": "Warning",
     "lat_s": 0.23411,
     "jitter_s": 0.02053,
@@ -50,7 +50,7 @@
   {
     "schema": "vendorB/2.0",
     "hostname": "SW_CAMPUS_6",
-    "ts": 1793483601,
+    "ts": 1793440680,
     "health": "Warning",
     "lat_s": 0.22309,
     "jitter_s": 0.0194,
@@ -62,7 +62,7 @@
   {
     "schema": "vendorB/2.0",
     "hostname": "SW_CAMPUS_6",
-    "ts": 1793483721,
+    "ts": 1793440800,
     "health": "Warning",
     "lat_s": 0.26223,
     "jitter_s": 0.02195,

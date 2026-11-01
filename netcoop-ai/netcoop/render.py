@@ -36,6 +36,22 @@ CATEGORY_STYLES = {"high": "bold green", "medium": "yellow", "low": "bold red"}
 CHECK_STATUS_STYLES = {"applied": "green", "check_failed": "red"}
 
 
+def _compact_list(items: list[str], max_items: int = 2, max_chars: int = 26) -> str:
+    """Bounds a list's rendered width so a table cell can never explode into a
+    cascade of single-word-per-line wrapping on a narrow terminal -- a few
+    items plus a "+N more" beats every item folded one syllable per line."""
+    if not items:
+        return "-"
+    shown = items[:max_items]
+    text = ", ".join(shown)
+    remaining = len(items) - len(shown)
+    if remaining > 0:
+        text += f" +{remaining} more"
+    if len(text) > max_chars:
+        text = text[:max_chars - 1].rstrip() + "…"
+    return text
+
+
 def _envelope_summary(env: dict) -> str:
     parts = []
     if env.get("findings"):
@@ -45,7 +61,7 @@ def _envelope_summary(env: dict) -> str:
     if env.get("assumptions"):
         parts.append(f"assumptions={len(env['assumptions'])}")
     if env.get("errors"):
-        parts.append(f"errors={env['errors']}")
+        parts.append(f"errors={_compact_list(env['errors'], max_items=1, max_chars=40)}")
     payload = env.get("payload") or {}
     if env["type"] == "check_request":
         parts.append(f"check={payload.get('check')}")
@@ -63,7 +79,7 @@ def render_message_timeline(log_path: Path) -> None:
     table.add_column("Type", no_wrap=True)
     table.add_column("Sender", no_wrap=True)
     table.add_column("Recipient", no_wrap=True)
-    table.add_column("Summary", overflow="fold")
+    table.add_column("Summary", overflow="fold", max_width=48)
     for i, line in enumerate(log_path.read_text(encoding="utf-8").splitlines(), start=1):
         env = json.loads(line)
         style = TYPE_STYLES.get(env["type"], "white")
@@ -73,20 +89,28 @@ def render_message_timeline(log_path: Path) -> None:
 
 
 def render_hypotheses(report_dict: dict) -> None:
+    # One bounded "Evidence" column rather than three narrow ones: splitting
+    # support/contradictions/missing into separate columns leaves each so
+    # narrow at a normal terminal width that long signal names (e.g.
+    # "interface_errors_present") wrap one or two characters per line. Full,
+    # untruncated lists are always in the JSON/Markdown report regardless.
     table = Table(title="Hypotheses", expand=True)
-    table.add_column("Hypothesis", min_width=14, no_wrap=True)
+    table.add_column("Hypothesis", min_width=16, no_wrap=True)
     table.add_column("Score", justify="right", no_wrap=True)
     table.add_column("Coverage", justify="right", no_wrap=True)
-    table.add_column("Support", overflow="fold")
-    table.add_column("Contradictions", overflow="fold")
-    table.add_column("Missing", overflow="fold")
+    table.add_column("Evidence", overflow="fold")
     top_hypothesis = report_dict["hypotheses"][0]["hypothesis"] if report_dict["hypotheses"] else None
     for h in report_dict["hypotheses"]:
         is_top = h["hypothesis"] == top_hypothesis
         label = Text(h["label"], style="bold" if is_top else None)
-        table.add_row(label, f"{h['score']:.2f}", f"{h['coverage']:.2f}",
-                      ", ".join(h["support"]) or "-", ", ".join(h["contradictions"]) or "-",
-                      ", ".join(h["missing"]) or "-")
+        evidence_parts = []
+        if h["support"]:
+            evidence_parts.append(f"+{_compact_list(h['support'])}")
+        if h["contradictions"]:
+            evidence_parts.append(f"-{_compact_list(h['contradictions'])}")
+        if h["missing"]:
+            evidence_parts.append(f"missing {_compact_list(h['missing'])}")
+        table.add_row(label, f"{h['score']:.2f}", f"{h['coverage']:.2f}", "; ".join(evidence_parts) or "-")
     console.print(table)
     category = report_dict["confidence_category"]
     style = CATEGORY_STYLES.get(category, "white")

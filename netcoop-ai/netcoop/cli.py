@@ -1,11 +1,13 @@
 """CLI entry points:
   python -m netcoop run <file> [--incident-id ID] [--topology ...] [--checks ...]
-  python -m netcoop demo
+  python -m netcoop demo [--no-pause]
 
 `run` renders the inter-agent message timeline, hypotheses, checks performed,
 and final report with rich, then writes reports/<incident_id>.json and .md.
 `demo` walks through a fixed sequence of scenarios for a live presentation,
-pausing for Enter between steps.
+pausing for Enter between steps (or running straight through with
+--no-pause, for non-interactive use). A single step failing never crashes
+the walkthrough -- its error is printed and the demo moves on.
 """
 from __future__ import annotations
 
@@ -122,18 +124,26 @@ DEMO_STEPS = [
 def demo_command(args: argparse.Namespace, input_fn=input) -> int:
     topology_path = ROOT / "scenarios" / "topology.json"
     topology = load_topology(topology_path) if topology_path.exists() else None
+    no_pause = getattr(args, "no_pause", False)
 
     render.console.rule("[bold]NetCoop AI — Live Demo[/]")
     for i, step in enumerate(DEMO_STEPS, start=1):
         render.console.print()
         render.console.rule(f"[bold cyan]{step['title']}[/]")
-        file_path = ROOT / step["file"]
-        checks_dir = ROOT / step["checks"] if step["checks"] else None
-        orchestrator = Orchestrator(topology=topology, checks_dir=checks_dir)
-        incident_id = f"DEMO-{i}-{file_path.stem}"
-        report, json_path, md_path = _execute(orchestrator, file_path, incident_id)
-        render.render_full_report(report.model_dump(mode="json"), json_path, md_path)
-        if i < len(DEMO_STEPS):
+        try:
+            file_path = ROOT / step["file"]
+            checks_dir = ROOT / step["checks"] if step["checks"] else None
+            orchestrator = Orchestrator(topology=topology, checks_dir=checks_dir)
+            incident_id = f"DEMO-{i}-{file_path.stem}"
+            report, json_path, md_path = _execute(orchestrator, file_path, incident_id)
+            render.render_full_report(report.model_dump(mode="json"), json_path, md_path)
+        except Exception as e:
+            # A demo step must never crash the whole walkthrough -- print one clear
+            # line and move on to the next step, the same "never crash" guarantee
+            # the orchestrator itself gives for a single incident (section 10 of
+            # docs/PROTOCOL.md).
+            render.console.print(f"[bold red]Step {i} failed: {type(e).__name__}: {e}[/]")
+        if i < len(DEMO_STEPS) and not no_pause:
             input_fn("\nPress Enter to continue...")
     render.console.print()
     render.console.rule("[bold green]Demo complete[/]")
@@ -152,6 +162,8 @@ def main(argv: list[str] | None = None) -> int:
     run_parser.set_defaults(func=run_command)
 
     demo_parser = sub.add_parser("demo", help="Walk through a live demo sequence")
+    demo_parser.add_argument("--no-pause", action="store_true",
+                              help="Run all steps back to back without waiting for Enter")
     demo_parser.set_defaults(func=demo_command)
 
     args = parser.parse_args(argv)

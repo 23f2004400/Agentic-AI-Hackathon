@@ -93,7 +93,7 @@ Finding(
 | `check_request` | orchestrator → checks | A targeted check is being requested. `payload = {"check": name, "device": ..., "discriminates": [hyp_a, hyp_b]}`. |
 | `check_result` | checks → orchestrator | The outcome of that check. `payload = {"status": "applied" \| "check_failed", "result": "..."}`. |
 | `error` | agent/checks → orchestrator | A failure of any kind (malformed reply, exception, timeout, duplicate msg_id, correlation failure) — see section 10's error catalog. `errors` carries the message(s). |
-| `report` | reporting_agent → orchestrator | The final, terminal message for an incident. `payload` is the full `Report` dict (section 8's shape). |
+| `report` | reporting_agent → orchestrator | The final, terminal message for an incident. `payload` is the full `Report` dict (shape defined in `netcoop/report.py`). |
 
 ### Versioning policy
 
@@ -335,8 +335,9 @@ any link referencing a device not in the declared `devices` list. Query
 methods (`downstream_of`, `ancestors_of`, `common_upstream`, `is_wireless`)
 reject an unknown device rather than silently returning nothing.
 
-When an incident involves multiple devices, `ReportingAgent._cluster_by_scope`
-groups them by their immediate topology parent. Devices that share a parent
+When an incident involves multiple devices, `_cluster_by_scope()` (a
+module-level helper in `agents/reporting.py`, called from
+`ReportingAgent.build_report`) groups them by their immediate topology parent. Devices that share a parent
 (e.g. three access switches under the same distribution switch, as in the
 `upstream_failure` scenario) get one diagnosis; devices in genuinely
 different branches (as in the `simultaneous` scenario) each get their own —
@@ -468,7 +469,6 @@ python -m netcoop run scenarios/inputs/<file>.json \
     [--topology scenarios/topology.json] \
     [--checks scenarios/checks/<scenario>]
 python -m netcoop demo       # a 5-step guided walkthrough, pausing for Enter
-streamlit run app.py         # browse completed incidents from the real log/report files
 python eval/run_eval.py      # compares every scenario against scenarios/ground_truth.json
 python scripts/gen_protocol_tables.py --write   # regenerate this doc's field tables
 ```
