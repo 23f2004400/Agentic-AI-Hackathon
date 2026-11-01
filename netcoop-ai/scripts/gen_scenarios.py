@@ -12,7 +12,9 @@ Writes:
   scenarios/inputs/<name>.json           (Schema A, one list of records)
   scenarios/inputs/schema_b_<name>.json  (Schema B equivalent, for 3 scenarios)
   scenarios/checks/<name>/<device>__<metric>.json  (targeted check files, for 2 scenarios)
-  scenarios/ground_truth.json            ({scenario: {root_cause, affected_devices, expected_status}})
+  scenarios/ground_truth.json            ({scenario: {root_cause, affected_devices, expected_status}},
+                                           plus optional "input"/"checks" keys for rows that reuse
+                                           another scenario's input file with a given checks_dir)
 
 Check files are generated here too (not hand-authored) so their timestamps
 stay anchored the same way as the scenario files they belong to, using the
@@ -311,6 +313,19 @@ GROUND_TRUTH: dict[str, dict] = {
         # check; --checks scenarios/checks/ambiguous_loss_A resolves it to Link
         # congestion, --checks scenarios/checks/ambiguous_loss_B resolves it to
         # Interface or cabling fault on a single link. See tests/test_milestone6.py.
+    },
+    # These two share the ambiguous_loss input but each supply one of the two
+    # check variants above, so eval/run_eval.py can exercise checks_dir end to
+    # end ("input"/"checks" keys mark this; a bare key name is its own input).
+    "ambiguous_loss__checks_A": {
+        "input": "ambiguous_loss", "checks": "ambiguous_loss_A",
+        "root_cause": "Link congestion", "affected_devices": ["SW_CAMPUS_1"],
+        "expected_status": "diagnosed",
+    },
+    "ambiguous_loss__checks_B": {
+        "input": "ambiguous_loss", "checks": "ambiguous_loss_B",
+        "root_cause": "Interface or cabling fault on a single link",
+        "affected_devices": ["SW_CAMPUS_1"], "expected_status": "diagnosed",
     },
 }
 

@@ -1,0 +1,36 @@
+# Declarative field mapping for "vendorC/1.0", a third vendor format: flat,
+# device_name, ts_iso ISO-8601 timestamps, rtt_us/jit_us in microseconds,
+# drop_frac/util_frac/cpu_frac as 0-1 ratios, queue_len/err_count bare counts.
+# Example record:
+# {"schema": "vendorC/1.0", "device_name": "SW_CAMPUS_6", "ts_iso": "2026-10-31T09:50:00Z",
+#  "rtt_us": 212620.0, "jit_us": 15750.0, "drop_frac": 0.02, "util_frac": 0.923,
+#  "cpu_frac": 0.5641, "queue_len": 493, "err_count": 0, "op_state": "Warning"}
+
+schema: vendorC/1.0
+device_field: device_name
+timestamp_field: ts_iso
+timestamp_format: iso8601
+status_field: op_state
+
+fields:
+  rtt_us:
+    metric: latency
+    unit: us
+  jit_us:
+    metric: jitter
+    unit: us
+  drop_frac:
+    metric: packet_loss
+    unit: ratio
+  util_frac:
+    metric: link_utilization
+    unit: ratio
+  cpu_frac:
+    metric: cpu
+    unit: ratio
+  queue_len:
+    metric: queue_drops
+    unit: null
+  err_count:
+    metric: interface_errors
+    unit: null

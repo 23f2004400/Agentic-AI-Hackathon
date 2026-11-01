@@ -66,7 +66,8 @@ def _call_with_timeout(fn: Callable, args: tuple, timeout_seconds: float) -> tup
 class Orchestrator:
     def __init__(self, analysis_agents: list[Agent] | None = None, logs_dir: Path | str = LOGS_DIR,
                  topology: Topology | None = None, checks_dir: Path | str | None = None,
-                 agent_timeout_seconds: float = AGENT_TIMEOUT_SECONDS):
+                 agent_timeout_seconds: float = AGENT_TIMEOUT_SECONDS,
+                 on_event: Callable[[Envelope], None] | None = None):
         self.analysis_agents = analysis_agents if analysis_agents is not None else [
             PerformanceAgent(), InfrastructureAgent(), ConnectivityAgent(topology=topology),
         ]
@@ -76,6 +77,7 @@ class Orchestrator:
         self.checks_dir = Path(checks_dir) if checks_dir is not None else None
         self.logs_dir = Path(logs_dir)
         self.agent_timeout_seconds = agent_timeout_seconds
+        self.on_event = on_event  # optional Callable[[Envelope], None], e.g. for a live UI; never required
         self.last_store: EvidenceStore | None = None  # the store from the most recent run(), for introspection
         self._seen_msg_ids: set[str] = set()           # reset per run(); duplicates are treated as malformed
 
@@ -84,6 +86,8 @@ class Orchestrator:
         path = self.logs_dir / f"{incident_id}.jsonl"
         with open(path, "a", encoding="utf-8") as f:
             f.write(envelope.model_dump_json() + "\n")
+        if self.on_event is not None:
+            self.on_event(envelope)
 
     def _safe_handle(self, name: str, fn: Callable, *args) -> tuple[Envelope | None, str | None]:
         """Calls an agent-like handle method with a timeout and validates the result:

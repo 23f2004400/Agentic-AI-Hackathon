@@ -1,5 +1,5 @@
 {
-  "dataset_size": 13,
+  "dataset_size": 15,
   "dataset_is_synthetic": true,
   "scenarios": [
     {
@@ -21,7 +21,7 @@
         "cause_correct": true,
         "devices_correct": true,
         "checks_used": 0,
-        "latency_s": 0.0436
+        "latency_s": 0.0428
       },
       "baseline": {
         "status": "diagnosed",
@@ -55,7 +55,7 @@
         "cause_correct": true,
         "devices_correct": true,
         "checks_used": 0,
-        "latency_s": 0.0076
+        "latency_s": 0.0119
       },
       "baseline": {
         "status": "diagnosed",
@@ -89,7 +89,7 @@
         "cause_correct": true,
         "devices_correct": true,
         "checks_used": 0,
-        "latency_s": 0.0093
+        "latency_s": 0.0115
       },
       "baseline": {
         "status": "diagnosed",
@@ -101,7 +101,7 @@
         "cause_correct": true,
         "devices_correct": true,
         "checks_used": 0,
-        "latency_s": 0.0002
+        "latency_s": 0.0003
       }
     },
     {
@@ -123,7 +123,7 @@
         "cause_correct": true,
         "devices_correct": true,
         "checks_used": 0,
-        "latency_s": 0.009
+        "latency_s": 0.0094
       },
       "baseline": {
         "status": "diagnosed",
@@ -135,7 +135,7 @@
         "cause_correct": true,
         "devices_correct": true,
         "checks_used": 0,
-        "latency_s": 0.0001
+        "latency_s": 0.0004
       }
     },
     {
@@ -157,7 +157,7 @@
         "cause_correct": true,
         "devices_correct": true,
         "checks_used": 0,
-        "latency_s": 0.0045
+        "latency_s": 0.0081
       },
       "baseline": {
         "status": "diagnosed",
@@ -169,7 +169,7 @@
         "cause_correct": true,
         "devices_correct": true,
         "checks_used": 0,
-        "latency_s": 0.0001
+        "latency_s": 0.0002
       }
     },
     {
@@ -191,7 +191,7 @@
         "cause_correct": true,
         "devices_correct": true,
         "checks_used": 0,
-        "latency_s": 0.004
+        "latency_s": 0.0074
       },
       "baseline": {
         "status": "diagnosed",
@@ -203,7 +203,7 @@
         "cause_correct": true,
         "devices_correct": true,
         "checks_used": 0,
-        "latency_s": 0.0001
+        "latency_s": 0.0002
       }
     },
     {
@@ -225,7 +225,7 @@
         "cause_correct": true,
         "devices_correct": true,
         "checks_used": 0,
-        "latency_s": 0.0081
+        "latency_s": 0.0078
       },
       "baseline": {
         "status": "diagnosed",
@@ -237,7 +237,7 @@
         "cause_correct": true,
         "devices_correct": true,
         "checks_used": 0,
-        "latency_s": 0.0001
+        "latency_s": 0.0002
       }
     },
     {
@@ -261,7 +261,7 @@
         "cause_correct": true,
         "devices_correct": true,
         "checks_used": 0,
-        "latency_s": 0.0073
+        "latency_s": 0.0123
       },
       "baseline": {
         "status": "diagnosed",
@@ -273,7 +273,7 @@
         "cause_correct": true,
         "devices_correct": true,
         "checks_used": 0,
-        "latency_s": 0.0001
+        "latency_s": 0.0002
       }
     },
     {
@@ -296,7 +296,7 @@
         "cause_correct": true,
         "devices_correct": true,
         "checks_used": 0,
-        "latency_s": 0.0082
+        "latency_s": 0.009
       },
       "baseline": {
         "status": "diagnosed",
@@ -308,7 +308,7 @@
         "cause_correct": true,
         "devices_correct": true,
         "checks_used": 0,
-        "latency_s": 0.0001
+        "latency_s": 0.0002
       }
     },
     {
@@ -330,7 +330,7 @@
         "cause_correct": true,
         "devices_correct": true,
         "checks_used": 0,
-        "latency_s": 0.0038
+        "latency_s": 0.0063
       },
       "baseline": {
         "status": "diagnosed",
@@ -342,7 +342,7 @@
         "cause_correct": false,
         "devices_correct": true,
         "checks_used": 0,
-        "latency_s": 0.0001
+        "latency_s": 0.0002
       }
     },
     {
@@ -364,7 +364,7 @@
         "cause_correct": true,
         "devices_correct": true,
         "checks_used": 0,
-        "latency_s": 0.0043
+        "latency_s": 0.0066
       },
       "baseline": {
         "status": "diagnosed",
@@ -376,7 +376,7 @@
         "cause_correct": false,
         "devices_correct": true,
         "checks_used": 0,
-        "latency_s": 0.0001
+        "latency_s": 0.0002
       }
     },
     {
@@ -398,7 +398,7 @@
         "cause_correct": true,
         "devices_correct": true,
         "checks_used": 0,
-        "latency_s": 0.0059
+        "latency_s": 0.0061
       },
       "baseline": {
         "status": "diagnosed",
@@ -410,7 +410,7 @@
         "cause_correct": false,
         "devices_correct": true,
         "checks_used": 0,
-        "latency_s": 0.0001
+        "latency_s": 0.0002
       }
     },
     {
@@ -432,7 +432,7 @@
         "cause_correct": true,
         "devices_correct": true,
         "checks_used": 0,
-        "latency_s": 0.0046
+        "latency_s": 0.0055
       },
       "baseline": {
         "status": "diagnosed",
@@ -444,7 +444,75 @@
         "cause_correct": false,
         "devices_correct": true,
         "checks_used": 0,
-        "latency_s": 0.0001
+        "latency_s": 0.0002
+      }
+    },
+    {
+      "scenario": "ambiguous_loss__checks_A",
+      "expected_status": "diagnosed",
+      "expected_root_cause": "Link congestion",
+      "expected_devices": [
+        "SW_CAMPUS_1"
+      ],
+      "pipeline": {
+        "status": "diagnosed",
+        "root_cause": "Link congestion",
+        "affected_devices": [
+          "SW_CAMPUS_1"
+        ],
+        "confidence": 0.75,
+        "confidence_category": "high",
+        "status_correct": true,
+        "cause_correct": true,
+        "devices_correct": true,
+        "checks_used": 1,
+        "latency_s": 0.0108
+      },
+      "baseline": {
+        "status": "diagnosed",
+        "root_cause": "Interface or cabling fault on a single link",
+        "affected_devices": [
+          "SW_CAMPUS_1"
+        ],
+        "status_correct": true,
+        "cause_correct": false,
+        "devices_correct": true,
+        "checks_used": 0,
+        "latency_s": 0.0002
+      }
+    },
+    {
+      "scenario": "ambiguous_loss__checks_B",
+      "expected_status": "diagnosed",
+      "expected_root_cause": "Interface or cabling fault on a single link",
+      "expected_devices": [
+        "SW_CAMPUS_1"
+      ],
+      "pipeline": {
+        "status": "diagnosed",
+        "root_cause": "Interface or cabling fault on a single link",
+        "affected_devices": [
+          "SW_CAMPUS_1"
+        ],
+        "confidence": 1.0,
+        "confidence_category": "high",
+        "status_correct": true,
+        "cause_correct": true,
+        "devices_correct": true,
+        "checks_used": 1,
+        "latency_s": 0.0118
+      },
+      "baseline": {
+        "status": "diagnosed",
+        "root_cause": "Interface or cabling fault on a single link",
+        "affected_devices": [
+          "SW_CAMPUS_1"
+        ],
+        "status_correct": true,
+        "cause_correct": true,
+        "devices_correct": true,
+        "checks_used": 0,
+        "latency_s": 0.0002
       }
     }
   ],
@@ -455,24 +523,24 @@
       "correct_abstention_rate": 1.0,
       "false_confident_diagnoses": 0,
       "false_confident_diagnoses_rate": 0.0,
-      "average_checks_used": 0.0,
-      "mean_latency_s": 0.00925,
+      "average_checks_used": 0.13333333333333333,
+      "mean_latency_s": 0.01115,
       "overall_status_accuracy": 1.0,
-      "n_scenarios": 13,
-      "n_diagnosed_expected": 9,
+      "n_scenarios": 15,
+      "n_diagnosed_expected": 11,
       "n_abstain_expected": 4
     },
     "baseline": {
-      "root_cause_accuracy": 1.0,
+      "root_cause_accuracy": 0.9090909090909091,
       "affected_device_accuracy": 1.0,
       "correct_abstention_rate": 0.0,
       "false_confident_diagnoses": 4,
       "false_confident_diagnoses_rate": 1.0,
       "average_checks_used": 0.0,
-      "mean_latency_s": 0.00013,
-      "overall_status_accuracy": 0.6923076923076923,
-      "n_scenarios": 13,
-      "n_diagnosed_expected": 9,
+      "mean_latency_s": 0.00023,
+      "overall_status_accuracy": 0.7333333333333333,
+      "n_scenarios": 15,
+      "n_diagnosed_expected": 11,
       "n_abstain_expected": 4
     }
   }

@@ -157,7 +157,13 @@ def test_insufficient_scenario_abstains_from_naming_a_cause(logs_dir):
 def test_scenario_status_and_root_cause_match_ground_truth(logs_dir, scenario):
     topo = load_topology(TOPOLOGY_PATH)
     gt = GROUND_TRUTH[scenario]
-    report = _run(logs_dir, f"{scenario}.json", topo=topo, incident_id=f"M5-GT-{scenario}")
+    # A row may carry "input" (another scenario's input file; defaults to its
+    # own key) and "checks" (a scenarios/checks/<dir> name) -- see
+    # ambiguous_loss__checks_A/_B, which reuse ambiguous_loss.json with a
+    # targeted check applied.
+    checks_dir = (CHECKS_DIR / gt["checks"]) if "checks" in gt else None
+    o = Orchestrator(topology=topo, logs_dir=logs_dir, checks_dir=checks_dir)
+    report = o.run(SCENARIOS / f"{gt.get('input', scenario)}.json", incident_id=f"M5-GT-{scenario}")
     assert report.status == gt["expected_status"]
     if gt["expected_status"] == "diagnosed":
         # ground_truth's root_cause for multi-fault scenarios documents both faults in

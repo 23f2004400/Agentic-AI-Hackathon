@@ -92,5 +92,23 @@
       "SW_CAMPUS_1"
     ],
     "expected_status": "insufficient_evidence"
+  },
+  "ambiguous_loss__checks_A": {
+    "input": "ambiguous_loss",
+    "checks": "ambiguous_loss_A",
+    "root_cause": "Link congestion",
+    "affected_devices": [
+      "SW_CAMPUS_1"
+    ],
+    "expected_status": "diagnosed"
+  },
+  "ambiguous_loss__checks_B": {
+    "input": "ambiguous_loss",
+    "checks": "ambiguous_loss_B",
+    "root_cause": "Interface or cabling fault on a single link",
+    "affected_devices": [
+      "SW_CAMPUS_1"
+    ],
+    "expected_status": "diagnosed"
   }
 }

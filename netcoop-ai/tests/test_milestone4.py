@@ -124,8 +124,13 @@ def _ground_truth() -> dict:
 def test_scenario_matches_ground_truth_status(tmp_path, scenario):
     gt = _ground_truth()[scenario]
     topo = load_topology(TOPOLOGY_PATH)
-    orchestrator = Orchestrator(topology=topo, logs_dir=tmp_path / "logs")
-    report = orchestrator.run(INPUTS / f"{scenario}.json", incident_id=f"GT-{scenario}")
+    # A row may carry "input" (another scenario's input file; defaults to its
+    # own key) and "checks" (a scenarios/checks/<dir> name) -- see
+    # ambiguous_loss__checks_A/_B, which reuse ambiguous_loss.json with a
+    # targeted check applied.
+    checks_dir = (SCENARIOS_DIR / "checks" / gt["checks"]) if "checks" in gt else None
+    orchestrator = Orchestrator(topology=topo, logs_dir=tmp_path / "logs", checks_dir=checks_dir)
+    report = orchestrator.run(INPUTS / f"{gt.get('input', scenario)}.json", incident_id=f"GT-{scenario}")
     assert report.status == gt["expected_status"], (
         f"{scenario}: expected status {gt['expected_status']!r}, got {report.status!r}"
     )

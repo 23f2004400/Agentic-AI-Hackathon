@@ -1,69 +1,89 @@
-import sys
+"""app.py's diagnosis helper, exercised directly -- never the Streamlit UI.
+Importing `app` must not execute any Streamlit call (st.* lives only inside
+main(), guarded by `if __name__ == "__main__"`), so this import is safe in a
+plain pytest run with no Streamlit script context.
+"""
 from pathlib import Path
 
+import app
+from netcoop.protocol import Envelope
+from netcoop.topology import load_topology
+
 ROOT = Path(__file__).resolve().parent.parent
-PROTOCOL_MD = ROOT / "docs" / "PROTOCOL.md"
+SCENARIOS = ROOT / "scenarios" / "inputs"
+CHECKS_DIR = ROOT / "scenarios" / "checks"
+TOPOLOGY_PATH = ROOT / "scenarios" / "topology.json"
 
 
-def _gen_protocol_tables():
-    scripts_dir = str(ROOT / "scripts")
-    if scripts_dir not in sys.path:
-        sys.path.insert(0, scripts_dir)
-    import gen_protocol_tables
-    return gen_protocol_tables
+def _cleanup_log(incident_id: str) -> None:
+    path = ROOT / "logs" / f"{incident_id}.jsonl"
+    if path.exists():
+        path.unlink()
 
 
-# ---- scripts/gen_protocol_tables.py -----------------------------------------
-
-def test_render_table_covers_every_model_field():
-    gpt = _gen_protocol_tables()
-    from netcoop.protocol import Envelope, Observation
-
-    for model in (Envelope, Observation):
-        table = gpt.render_table(model)
-        for field_name in model.model_fields:
-            assert f"`{field_name}`" in table, f"{field_name} missing from generated table"
-
-def test_render_table_marks_required_fields_correctly():
-    gpt = _gen_protocol_tables()
-    from netcoop.protocol import Observation
-    table = gpt.render_table(Observation)
-    lines = {line.split("|")[1].strip(): line for line in table.splitlines() if line.startswith("| `")}
-    assert "| yes |" in lines["`device`"]       # required
-    assert "| no |" in lines["`original_unit`"]  # has a default
-
-def test_render_table_never_leaves_an_unescaped_pipe_inside_a_cell():
-    # regression test: a union type like "number | string | boolean" joined with
-    # " | " would silently break the markdown table by splitting into extra cells.
-    gpt = _gen_protocol_tables()
-    from netcoop.protocol import Observation
-    table = gpt.render_table(Observation)
-    for line in table.splitlines()[2:]:  # skip header + separator row
-        if not line.strip():
-            continue
-        cells = line.strip().strip("|").split("|")
-        assert len(cells) == 5, f"row has {len(cells)} cells, expected 5: {line!r}"
-
-def test_write_into_protocol_md_is_idempotent_and_matches_live_schema():
-    gpt = _gen_protocol_tables()
-    from netcoop.protocol import Envelope, Observation
-
-    before = PROTOCOL_MD.read_text(encoding="utf-8")
+def test_ambiguous_loss_checks_a_and_b_via_app_helper_give_different_root_causes():
+    topology = load_topology(TOPOLOGY_PATH)
     try:
-        gpt.write_into_protocol_md()
-        after = PROTOCOL_MD.read_text(encoding="utf-8")
-        assert after == before  # already up to date -> no-op
-        assert gpt.render_table(Envelope) in after
-        assert gpt.render_table(Observation) in after
+        report_a = app.run_diagnosis(
+            SCENARIOS / "ambiguous_loss.json",
+            checks_dir=CHECKS_DIR / "ambiguous_loss_A",
+            topology=topology,
+            incident_id="M10-app-helper-a",
+        )
+        report_b = app.run_diagnosis(
+            SCENARIOS / "ambiguous_loss.json",
+            checks_dir=CHECKS_DIR / "ambiguous_loss_B",
+            topology=topology,
+            incident_id="M10-app-helper-b",
+        )
+        assert report_a.suspected_root_cause != report_b.suspected_root_cause
+        assert report_a.suspected_root_cause == "Link congestion"
+        assert report_b.suspected_root_cause == "Interface or cabling fault on a single link"
     finally:
-        PROTOCOL_MD.write_text(before, encoding="utf-8")
+        _cleanup_log("M10-app-helper-a")
+        _cleanup_log("M10-app-helper-b")
 
-def test_protocol_md_has_no_raw_pipe_inside_generated_table_rows():
-    # end-to-end check on the actual committed doc, not just the generator's output
-    text = PROTOCOL_MD.read_text(encoding="utf-8")
-    start = text.index("<!-- GENERATED:OBSERVATION_FIELDS -->")
-    end = text.index("<!-- END GENERATED:OBSERVATION_FIELDS -->")
-    block = text[start:end]
-    for line in block.splitlines():
-        if line.startswith("| `"):
-            assert len(line.strip().strip("|").split("|")) == 5
+
+def test_run_diagnosis_on_event_receives_real_envelopes_in_order():
+    events: list[Envelope] = []
+    incident_id = "M10-app-helper-events"
+    try:
+        report = app.run_diagnosis(
+            SCENARIOS / "hardware_failure.json",
+            incident_id=incident_id,
+            on_event=events.append,
+        )
+        assert events, "on_event should have fired for every logged Envelope"
+        assert all(isinstance(e, Envelope) for e in events)
+        assert events[0].type.value == "task"
+        assert events[-1].type.value == "report"
+        assert events[-1].payload["incident_id"] == report.incident_id
+    finally:
+        _cleanup_log(incident_id)
+
+
+def test_list_scenarios_and_check_dirs_find_real_bundled_files():
+    scenarios = app.list_scenarios()
+    assert "ambiguous_loss" in scenarios
+    assert "hardware_failure" in scenarios
+
+    check_dirs = app.list_check_dirs()
+    assert "ambiguous_loss_A" in check_dirs
+    assert "ambiguous_loss_B" in check_dirs
+
+
+def test_resolve_input_text_scenario_name_and_pasted_json():
+    path, is_temp = app.resolve_input_text("ambiguous_loss")
+    assert path == SCENARIOS / "ambiguous_loss.json"
+    assert is_temp is False
+
+    path, is_temp = app.resolve_input_text('{"device_id": "SW_CAMPUS_1", "metrics": {}}')
+    assert is_temp is True
+    assert path.exists()
+    path.unlink()
+
+
+def test_resolve_input_text_unknown_scenario_name_raises():
+    import pytest
+    with pytest.raises(ValueError):
+        app.resolve_input_text("not_a_real_scenario_name")
