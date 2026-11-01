@@ -13,7 +13,7 @@
 | Correct abstention rate | 100% | 0% |
 | False confident diagnoses | 0/4 (0%) | 4/4 (100%) |
 | Average checks used | 0.00 | 0.00 |
-| Mean latency (s) | 0.0135 | 0.0003 |
+| Mean latency (s) | 0.0086 | 0.0002 |
 | Overall status accuracy | 100% | 69% |
 
 Root-cause and affected-device accuracy are computed over the 9 scenario(s) ground truth expects to be diagnosed. Correct abstention rate and false confident diagnoses are computed over the 4 scenario(s) ground truth expects to need abstention (`insufficient_evidence` or `invalid_input`).
